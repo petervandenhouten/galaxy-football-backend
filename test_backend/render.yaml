@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: dotnet-api
+    runtime: dotnet
+    buildCommand: dotnet publish -c Release -o out
+    startCommand: dotnet out/test_backend.dll
