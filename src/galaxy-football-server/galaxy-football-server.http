@@ -1,0 +1,6 @@
+@galaxy_football_server_HostAddress = http://localhost:5097
+
+GET {{galaxy_football_server_HostAddress}}/version/
+Accept: application/json
+
+###
