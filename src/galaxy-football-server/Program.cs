@@ -36,11 +36,8 @@ builder.Configuration.AddEnvironmentVariables();
 
 var app = builder.Build();
 
-// Use CORS policy only when running on localhost
-if (app.Urls.Any(url => url.Contains("localhost") || url.Contains("127.0.0.1")))
-{
-    app.UseCors("AllowLocalhost");
-}
+// Use CORS policy for testing with Admin pages of localhost dev machine
+app.UseCors("AllowLocalhost");
 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 
