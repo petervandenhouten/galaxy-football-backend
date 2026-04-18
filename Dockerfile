@@ -12,11 +12,11 @@ RUN dotnet restore src/galaxy-football-server/galaxy-football-server.csproj
 COPY src/ src/
 
 WORKDIR /app/src/galaxy-football-server
-RUN dotnet publish -c Release -o /out --no-restore
+RUN dotnet publish -c Release -o /app/publish --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
-COPY --from=build /app/src/galaxy-football-server/out .
+COPY --from=build /app/publish .
 
 EXPOSE 8080
 
