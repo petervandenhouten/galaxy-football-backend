@@ -4,8 +4,6 @@ WORKDIR /app
 # Copy csproj and restore as distinct layers
 COPY src/galaxy-football-server/galaxy-football-server.csproj ./galaxy-football-server/
 
-# COPY Git to fix branch name retrieval in project
-COPY .git ./galaxy-football-server/.git
 
 RUN dotnet restore ./galaxy-football-server/galaxy-football-server.csproj
 
