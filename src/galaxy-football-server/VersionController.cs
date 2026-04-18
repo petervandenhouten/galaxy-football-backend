@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
 [ApiController]
@@ -15,11 +16,7 @@ public class VersionController : ControllerBase
         _configuration = configuration;
     }
 
-    protected string GetGitBranchName()
-    {
-        // Use the generated GitInfo class for the branch name
-        return GalaxyFootball.GitInfo.Branch ?? "unknown";
-    }
+
 
     [HttpGet]
     public ActionResult<VersionRecord> Get(int id)
@@ -50,6 +47,12 @@ public class VersionController : ControllerBase
         var version = new VersionRecord(buildTime, branch, versionString, description);
         _logger.LogInformation("Processing request at {buildtime}. Version={version}, Description={description}", version.buildtime, version.version, version.description);
         return version; // Automatically wrapped in an OkObjectResult
+    }
+
+    private static string GetGitBranchName()
+    {
+        // Retrieve branch name from environment variable GIT_BRANCH
+        return Environment.GetEnvironmentVariable("GIT_BRANCH") ?? "unknown";
     }
 
     private static string GetBuildTime()

@@ -17,17 +17,14 @@
     </PropertyGroup>
 
 
-
   <ItemGroup>
-    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
-      <_Parameter1>BuildDateTime</_Parameter1>
-      <_Parameter2>$(BuildDateTime)</_Parameter2>
-    </AssemblyAttribute>
-    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
-      <_Parameter1>GitBranch</_Parameter1>
-      <_Parameter2>$(GitBranch)</_Parameter2>
-    </AssemblyAttribute>
+    <AssemblyMetadata Include="BuildDateTime" Value="$(BuildDateTime)" />
   </ItemGroup>
+
+
+
+
+
 
   <ItemGroup>
     <PackageReference Include="AWSSDK.S3" Version="4.0.21.2" />
@@ -46,18 +43,7 @@
 
 
 
-  <!-- Generate a C# file with the current Git branch name for use in VersionController -->
-  <Target Name="GenerateGitBranchSource" BeforeTargets="BeforeCompile">
-    <Exec Command="git rev-parse --abbrev-ref HEAD > $(BaseIntermediateOutputPath)gitbranch.txt" />
-    <ReadLinesFromFile File="$(BaseIntermediateOutputPath)gitbranch.txt">
-      <Output TaskParameter="Lines" PropertyName="GitBranchName" />
-    </ReadLinesFromFile>
-    <PropertyGroup>
-      <GitBranchNameTrimmed>$([System.String]::Copy('$(GitBranchName)').Trim())</GitBranchNameTrimmed>
-    </PropertyGroup>
-    <Exec Command='echo namespace GalaxyFootball { public static class GitInfo { public const string Branch = "$(GitBranchNameTrimmed)"; } } > GitBranch.g.cs' />
-    <!-- No explicit Compile Include for GitBranch.g.cs to avoid duplicate warning -->
-    <Message Importance="High" Text="Generated GitBranch.g.cs with branch: '$(GitBranchName)'" />
-  </Target>
+
+
 
 </Project>
