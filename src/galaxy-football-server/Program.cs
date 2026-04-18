@@ -1,5 +1,7 @@
 using Serilog;
 
+using Microsoft.Extensions.Configuration;
+
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(new ConfigurationBuilder()
         .AddJsonFile("appsettings.json")
@@ -8,22 +10,41 @@ Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
     .CreateLogger();
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog();
 builder.Services.AddControllers();
+// Register external controllers from Cloudflare.Library
+builder.Services.AddControllers()
+    .AddApplicationPart(typeof(GalaxyFootball.Infrastructure.LogsController).Assembly);
+
+// Enable CORS for localhost origins
+builder.Services.AddCors(options =>
+    // TODO: For production, restrict origins instead of AllowAnyOrigin() for security.
+{
+    options.AddPolicy("AllowLocalhost",
+        policy => policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+    );
+});
+
 builder.Services.AddHostedService<LogUploaderService>();
 builder.Configuration.AddEnvironmentVariables();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-//    app.MapOpenApi();
-//}
+// Use CORS policy only when running on localhost
+if (app.Urls.Any(url => url.Contains("localhost") || url.Contains("127.0.0.1")))
+{
+    app.UseCors("AllowLocalhost");
+}
 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+
+// use localhost in the browser
 app.Urls.Add($"http://0.0.0.0:{port}");
 
 app.UseHttpsRedirection();

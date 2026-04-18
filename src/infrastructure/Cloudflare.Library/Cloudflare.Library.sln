@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test_backend", "test_backend\test_backend.csproj", "{78450738-2EC0-E7B1-F4C1-FF178EAD2773}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cloudflare.Library", "Cloudflare.Library.csproj", "{47C0DF4C-F9F3-3586-8D60-672EB8BBC007}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -10,15 +10,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{78450738-2EC0-E7B1-F4C1-FF178EAD2773}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{78450738-2EC0-E7B1-F4C1-FF178EAD2773}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{78450738-2EC0-E7B1-F4C1-FF178EAD2773}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{78450738-2EC0-E7B1-F4C1-FF178EAD2773}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47C0DF4C-F9F3-3586-8D60-672EB8BBC007}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47C0DF4C-F9F3-3586-8D60-672EB8BBC007}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47C0DF4C-F9F3-3586-8D60-672EB8BBC007}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47C0DF4C-F9F3-3586-8D60-672EB8BBC007}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {3FB13FA9-F1EB-4A70-AF0B-7F5C7C942635}
+		SolutionGuid = {DE5B44DC-2C8C-4869-A903-9ABF9E145865}
 	EndGlobalSection
 EndGlobal

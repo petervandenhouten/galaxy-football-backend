@@ -15,4 +15,8 @@
     <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\infrastructure\Cloudflare.Library\Cloudflare.Library.csproj" />
+  </ItemGroup>
+
 </Project>
