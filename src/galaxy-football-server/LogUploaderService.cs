@@ -57,6 +57,8 @@ public class LogUploaderService : BackgroundService
         var bucket_name = m_configuration["CLOUDFLARE:BUCKET_NAME"];
         var service_url = m_configuration["CLOUDFLARE:S3_URL"];
 
+        // TODO Use Cloudflare library
+
         var config = new AmazonS3Config
         {
             ServiceURL = service_url,

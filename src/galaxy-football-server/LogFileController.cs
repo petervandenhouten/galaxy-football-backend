@@ -4,19 +4,26 @@ using GalaxyFootball.Infrastructure.Cloudflare;
 
 [ApiController]
 [Route("api/logs")]
-public class LogsController : ControllerBase
+public class LogFileController : ControllerBase
 {
     private readonly LogFiles m_logFiles;
     
     private readonly IConfiguration m_configuration;
 
-    public LogsController(IConfiguration configuration)
+    public LogFileController(IConfiguration configuration)
     {
         m_configuration = configuration;
 
         var access_key = m_configuration["CLOUDFLARE:ACCESS_KEY"];
         var secret_key = m_configuration["CLOUDFLARE:SECRET_KEY"];
         var service_url = m_configuration["CLOUDFLARE:S3_URL"];
+
+        if (string.IsNullOrEmpty(access_key))
+            throw new ArgumentException("CLOUDFLARE:ACCESS_KEY is missing from configuration.");
+        if (string.IsNullOrEmpty(secret_key))
+            throw new ArgumentException("CLOUDFLARE:SECRET_KEY is missing from configuration.");
+        if (string.IsNullOrEmpty(service_url))
+            throw new ArgumentException("CLOUDFLARE:S3_URL is missing from configuration.");
 
         m_logFiles = new LogFiles(access_key, secret_key, service_url);
     }
@@ -30,6 +37,8 @@ public class LogsController : ControllerBase
         // The library function that actually sends the request to Cloudflare should also be async, since it performs I/O-bound work (network call).
 
         var bucket_name = m_configuration["CLOUDFLARE:BUCKET_NAME"];
+        if (string.IsNullOrEmpty(bucket_name))
+            throw new ArgumentException("CLOUDFLARE:BUCKET_NAME is missing from configuration.");
         var files = await m_logFiles.ListLogs(bucket_name);
         return Ok(files);
     }
@@ -38,6 +47,8 @@ public class LogsController : ControllerBase
     public async Task<IActionResult> GetLog([FromRoute] string key)
     {
         var bucket_name = m_configuration["CLOUDFLARE:BUCKET_NAME"];
+        if (string.IsNullOrEmpty(bucket_name))
+            throw new ArgumentException("CLOUDFLARE:BUCKET_NAME is missing from configuration.");
         var content = await m_logFiles.GetLog(bucket_name, key);
         return Content(content, "text/plain");
     }

@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace GalaxyFootball.Infrastructure.Git
+﻿namespace GalaxyFootball.Infrastructure.Git
 {
     public class BuildInfo
     {
