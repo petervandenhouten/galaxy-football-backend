@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "galaxy-football-server", "galaxy-football-server.csproj", "{95D524CC-A14D-C24B-AA48-0AB1C87B6577}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "galaxy-football-server", "../galaxy-football-server/galaxy-football-server.csproj", "{95D524CC-A14D-C24B-AA48-0AB1C87B6577}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cloudflare.Library", "..\infrastructure\Cloudflare.Library\Cloudflare.Library.csproj", "{E4543115-C6C8-4DDB-AE11-49AE58078847}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cloudflare.Library", "../infrastructure/Cloudflare.Library/Cloudflare.Library.csproj", "{E4543115-C6C8-4DDB-AE11-49AE58078847}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Git.Library", "..\infrastructure\Git.Library\Git.Library.csproj", "{CAF31FD4-E579-47C0-90A6-8AF095A9D81A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Git.Library", "../infrastructure/Git.Library/Git.Library.csproj", "{CAF31FD4-E579-47C0-90A6-8AF095A9D81A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

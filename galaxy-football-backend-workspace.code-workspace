@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "src/galaxy-football-server"
+		},
+		{
+			"path": "src/infrastructure/Cloudflare.Library"
+		},
+		{
+			"path": "src/infrastructure/Git.Library"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {}
+}
