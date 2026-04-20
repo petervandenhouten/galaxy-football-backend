@@ -1,0 +1,18 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build galaxy-football-backend.sln",
+			"type": "shell",
+			"command": "dotnet",
+			"args": [
+				"build",
+				"galaxy-football-backend.sln"
+			],
+			"problemMatcher": [
+				"$msCompile"
+			],
+			"group": "build"
+		}
+	]
+}
