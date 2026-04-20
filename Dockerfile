@@ -7,8 +7,8 @@ COPY src/galaxy-football-server/galaxy-football-server.csproj src/galaxy-footbal
 COPY src/infrastructure/Cloudflare.Library/Cloudflare.Library.csproj src/infrastructure/Cloudflare.Library/
 COPY src/infrastructure/Git.Library/Git.Library.csproj src/infrastructure/Git.Library/
 
-# Restore dependencies
-dotnet restore galaxy-football-server.sln
+# Restore dependencies as distinct layers
+RUN dotnet restore galaxy-football-server/galaxy-football-server.sln
 
 # Copy the rest of the source code
 COPY src/ src/
