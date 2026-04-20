@@ -1,6 +1,8 @@
 
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
+using GalaxyFootball.Infrastructure.Git;
+
 [ApiController]
 [Route("version")]
 public class VersionController : ControllerBase
@@ -16,16 +18,15 @@ public class VersionController : ControllerBase
         _configuration = configuration;
     }
 
-
-
     [HttpGet]
-    public ActionResult<VersionRecord> Get(int id)
+    public ActionResult<VersionRecord> Get()
     {
         // Use AssemblyInformationalVersionAttribute for version info
         string versionString = "unknown";
         string buildTime = GetBuildTime();
         string description = _configuration["Description"] ?? "No description available";
-        string branch = GetGitBranchName();
+        string branch = BuildInfo.GetGitBranchName();
+
         try
         {
             var infoVersion = Assembly.GetExecutingAssembly()
@@ -48,13 +49,6 @@ public class VersionController : ControllerBase
         _logger.LogInformation("Processing request at {buildtime}. Version={version}, Description={description}", version.buildtime, version.version, version.description);
         return version; // Automatically wrapped in an OkObjectResult
     }
-
-    private static string GetGitBranchName()
-    {
-        // Retrieve branch name from environment variable GIT_BRANCH
-        return Environment.GetEnvironmentVariable("GIT_BRANCH") ?? "unknown";
-    }
-
     private static string GetBuildTime()
     {
         return Assembly.GetExecutingAssembly()
@@ -62,4 +56,5 @@ public class VersionController : ControllerBase
             .OfType<AssemblyMetadataAttribute>()
             .FirstOrDefault(a => a.Key == "BuildDateTime")?.Value ?? "unknown";
     }
+   
 }

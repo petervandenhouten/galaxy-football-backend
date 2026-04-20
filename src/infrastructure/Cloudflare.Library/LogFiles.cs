@@ -3,24 +3,14 @@ using Amazon.S3.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
-namespace GalaxyFootball.Infrastructure
+namespace GalaxyFootball.Infrastructure.Cloudflare
 {
-    [ApiController]
-    [Route("api/logs")]
-    public class LogsController : ControllerBase
+    public class LogFiles 
     {
         private readonly IAmazonS3 _s3;
        
-        private readonly IConfiguration m_configuration;
-
-        public LogsController(IConfiguration configuration)
+        public LogFiles(string access_key, string secret_key, string service_url)
         {
-             m_configuration = configuration;
-
-            var access_key = m_configuration["CLOUDFLARE:ACCESS_KEY"];
-            var secret_key = m_configuration["CLOUDFLARE:SECRET_KEY"];
-            var service_url = m_configuration["CLOUDFLARE:S3_URL"];
-
             var s3Config = new AmazonS3Config
             {
                 ServiceURL = service_url,
@@ -29,12 +19,8 @@ namespace GalaxyFootball.Infrastructure
             _s3 = new AmazonS3Client(access_key, secret_key, s3Config);
         }
 
-
-        [HttpGet]
-        public async Task<IActionResult> ListLogs()
+        public async Task<List<string>> ListLogs(string bucket_name)
         {
-            var bucket_name = m_configuration["CLOUDFLARE:BUCKET_NAME"];
-
             var request = new ListObjectsV2Request
             {
                 BucketName = bucket_name,
@@ -46,14 +32,11 @@ namespace GalaxyFootball.Infrastructure
                 .Select(o => o.Key.StartsWith("logs/") ? o.Key.Substring("logs/".Length) : o.Key)
                 .Where(name => !string.IsNullOrEmpty(name))
                 .ToList();
-            return Ok(files);
+            return files;
         }
 
-        [HttpGet("{key}")]
-        public async Task<IActionResult> GetLog([FromRoute] string key)
+        public async Task<string> GetLog(string bucket_name, string key)
         {
-            var bucket_name = m_configuration["CLOUDFLARE:BUCKET_NAME"];
-
             // Prepend the folder prefix to the key
             var s3Key = $"logs/{key}";
             var request = new GetObjectRequest
@@ -65,7 +48,7 @@ namespace GalaxyFootball.Infrastructure
             using var reader = new StreamReader(response.ResponseStream);
             var content = await reader.ReadToEndAsync();
             // Return as plain text for better client compatibility
-            return Content(content, "text/plain");
+            return content;
         }
     }
 }

@@ -1,7 +1,5 @@
 using Serilog;
 
-using Microsoft.Extensions.Configuration;
-
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(new ConfigurationBuilder()
         .AddJsonFile("appsettings.json")
@@ -10,14 +8,13 @@ Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
     .CreateLogger();
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog();
 builder.Services.AddControllers();
 // Register external controllers from Cloudflare.Library
-builder.Services.AddControllers()
-    .AddApplicationPart(typeof(GalaxyFootball.Infrastructure.LogsController).Assembly);
+//builder.Services.AddControllers()
+//    .AddApplicationPart(typeof(GalaxyFootball.Infrastructure.LogsController).Assembly);
 
 // Enable CORS for localhost origins
 builder.Services.AddCors(options =>
