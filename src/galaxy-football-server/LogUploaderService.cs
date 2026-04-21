@@ -58,7 +58,7 @@ public class LogUploaderService : BackgroundService
         {
             m_logger.LogError("Logs path does not exist: {logsDir}", logsDir);
         }
-`
+
         // Rolling log file name, must the same as configured in Serilog, e.g. "log-.txt" with rollingInterval "Day" will generate log-20240610.txt for June 10, 2024
         var logFileName = Path.Combine(logsDir, $"log-{DateTime.Now:yyyyMMdd}.txt"); 
         if (!File.Exists(logFileName))
