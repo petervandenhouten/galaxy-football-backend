@@ -36,10 +36,14 @@ public class LogUploaderService : BackgroundService
         // "%TMPDIR%/galaxyfootball/logs/log-.txt", "rollingInterval": "Day" } }
         // for window dev: also define %TMPDIR
         var tempPath    = Path.GetTempPath();
-
         if (!Directory.Exists(tempPath))
         {
             m_logger.LogError("Temp path does not exist: {tempPath}", tempPath);
+        }
+        var logs1Dir     = Path.Combine(tempPath, "galaxyfootball", "logs");
+        if (!Directory.Exists(logs1Dir))
+        {
+            m_logger.LogError("Logs path does not exist: {logs1Dir}", logs1Dir);
         }
 
         var logsDir     = Path.Combine(tempPath, "galaxyfootball", "logs");
