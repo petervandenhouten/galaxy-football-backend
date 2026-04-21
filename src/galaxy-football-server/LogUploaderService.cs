@@ -31,7 +31,7 @@ public class LogUploaderService : BackgroundService
     private async void upload_logfiles()
     {
         var tempPath = Path.GetTempPath();
-        var logFileName = $"{tempPath}GalaxyFootball\\logs\\log-{DateTime.Now:yyyyMMdd}.txt"; // Rolling log file name
+        var logFileName = $"{tempPath}GalaxyFootball/logs/log-{DateTime.Now:yyyyMMdd}.txt"; // Rolling log file name
         if (!File.Exists(logFileName))
         {
             m_logger.LogInformation("Log file {logFileName} does not exist, skipping upload", logFileName);
@@ -39,7 +39,7 @@ public class LogUploaderService : BackgroundService
         }
 
         // Copy the log file to a temp location to avoid file lock issues
-        var tempUploadFile = $"{tempPath}GalaxyFootball\\logs\\log-{DateTime.Now:yyyy-MM-dd}.txt"; // Similar to rolling log file 
+        var tempUploadFile = $"{tempPath}GalaxyFootball/logs/log-{DateTime.Now:yyyy-MM-dd}.txt"; // Similar to rolling log file 
         try
         {
             File.Copy(logFileName, tempUploadFile, true);
