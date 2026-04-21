@@ -37,6 +37,7 @@ public class LogUploaderService : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
             upload_logfiles();
+            // todo: make this a configuration item?
             await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
         }
     }
