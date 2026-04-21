@@ -31,9 +31,18 @@ public class LogUploaderService : BackgroundService
     private async void upload_logfiles()
     {
         // Serilog config:
-        // "%TMP%/GalaxyFootball/logs/log-.txt" with rolling interval of 1 day
+
+        // for linux use
+        // "%TMPDIR%/galaxyfootball/logs/log-.txt", "rollingInterval": "Day" } }
+        // for window dev: also define %TMPDIR
         var tempPath    = Path.GetTempPath();
-        var logsDir     = Path.Combine(tempPath, "GalaxyFootball", "logs");
+
+        if (!Directory.Exists(tempPath))
+        {
+            m_logger.LogError("Temp path does not exist: {tempPath}", tempPath);
+        }
+
+        var logsDir     = Path.Combine(tempPath, "galaxyfootball", "logs");
 
         // Log the contents of the logsDir for debugging
         try
