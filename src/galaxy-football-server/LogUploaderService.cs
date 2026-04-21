@@ -40,7 +40,7 @@ public class LogUploaderService : BackgroundService
         {
             m_logger.LogError("Temp path does not exist: {tempPath}", tempPath);
         }
-        var logs1Dir     = Path.Combine(tempPath, "galaxyfootball", "logs");
+        var logs1Dir     = Path.Combine(tempPath, "galaxyfootball");
         if (!Directory.Exists(logs1Dir))
         {
             m_logger.LogError("Logs path does not exist: {logs1Dir}", logs1Dir);
