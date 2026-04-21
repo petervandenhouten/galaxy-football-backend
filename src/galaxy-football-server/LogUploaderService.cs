@@ -30,8 +30,30 @@ public class LogUploaderService : BackgroundService
 
     private async void upload_logfiles()
     {
-        var tempPath = Path.GetTempPath();
-        var logFileName = $"{tempPath}GalaxyFootball/logs/log-{DateTime.Now:yyyyMMdd}.txt"; // Rolling log file name
+        // Serilog config:
+        // "%TMP%/GalaxyFootball/logs/log-.txt" with rolling interval of 1 day
+        var tempPath    = Path.GetTempPath();
+        var logsDir     = Path.Combine(tempPath, "GalaxyFootball", "logs");
+
+        // Log the contents of the logsDir for debugging
+        try
+        {
+            if (Directory.Exists(logsDir))
+            {
+                var files = Directory.GetFiles(logsDir);
+                m_logger.LogInformation("Contents of logsDir ({logsDir}): {Files}", logsDir, string.Join(", ", files));
+            }
+            else
+            {
+                m_logger.LogWarning("logsDir does not exist: {logsDir}", logsDir);
+            }
+        }
+        catch (Exception ex)
+        {
+            m_logger.LogError(ex, "Failed to enumerate files in logsDir: {logsDir}", logsDir);
+        }
+        
+        var logFileName = Path.Combine(logsDir, $"log-{DateTime.Now:yyyyMMdd}.txt"); // Rolling log file name
         if (!File.Exists(logFileName))
         {
             m_logger.LogInformation("Log file {logFileName} does not exist, skipping upload", logFileName);
@@ -39,7 +61,7 @@ public class LogUploaderService : BackgroundService
         }
 
         // Copy the log file to a temp location to avoid file lock issues
-        var tempUploadFile = $"{tempPath}GalaxyFootball/logs/log-{DateTime.Now:yyyy-MM-dd}.txt"; // Similar to rolling log file 
+        var tempUploadFile = Path.Combine(logsDir, $"log-{DateTime.Now:yyyy-MM-dd}.txt"); // Similar to rolling log file 
         try
         {
             File.Copy(logFileName, tempUploadFile, true);
