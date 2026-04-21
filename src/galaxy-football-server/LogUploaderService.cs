@@ -3,20 +3,33 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using System.IO;
-using Amazon.S3;
-using Amazon.S3.Transfer;
 using Serilog;
+using GalaxyFootball.Infrastructure.Cloudflare;
 
 // TODO move this class to infrastructore layer and add configuration for S3 client
 public class LogUploaderService : BackgroundService
 {
     private readonly IConfiguration m_configuration;
     private readonly ILogger<LogUploaderService> m_logger;
+    private readonly FileUploader m_fileUploader;
     
     public LogUploaderService(IConfiguration configuration, ILogger<LogUploaderService> logger)
     {
         m_configuration = configuration;
         m_logger = logger;
+
+        var access_key  = m_configuration["CLOUDFLARE:ACCESS_KEY"];
+        var secret_key  = m_configuration["CLOUDFLARE:SECRET_KEY"];
+        var service_url = m_configuration["CLOUDFLARE:S3_URL"];
+
+        if (string.IsNullOrEmpty(access_key))
+            throw new ArgumentException("CLOUDFLARE:ACCESS_KEY is missing from configuration.");
+        if (string.IsNullOrEmpty(secret_key))
+            throw new ArgumentException("CLOUDFLARE:SECRET_KEY is missing from configuration.");
+        if (string.IsNullOrEmpty(service_url))
+            throw new ArgumentException("CLOUDFLARE:S3_URL is missing from configuration.");
+
+        m_fileUploader = new FileUploader(access_key, secret_key, service_url);
     }
     
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -31,45 +44,26 @@ public class LogUploaderService : BackgroundService
     private async void upload_logfiles()
     {
         // Serilog config:
-
         // for linux use
         // "%TMPDIR%/galaxyfootball/logs/log-.txt", "rollingInterval": "Day" } }
         // for window dev: also define %TMPDIR
+        
         var tempPath    = Path.GetTempPath();
         if (!Directory.Exists(tempPath))
         {
             m_logger.LogError("Temp path does not exist: {tempPath}", tempPath);
         }
-        var logs1Dir     = Path.Combine(tempPath, "galaxyfootball");
-        if (!Directory.Exists(logs1Dir))
-        {
-            m_logger.LogError("Logs path does not exist: {logs1Dir}", logs1Dir);
-        }
-
         var logsDir     = Path.Combine(tempPath, "galaxyfootball", "logs");
-
-        // Log the contents of the logsDir for debugging
-        try
+        if (!Directory.Exists(logsDir))
         {
-            if (Directory.Exists(logsDir))
-            {
-                var files = Directory.GetFiles(logsDir);
-                m_logger.LogInformation("Contents of logsDir ({logsDir}): {Files}", logsDir, string.Join(", ", files));
-            }
-            else
-            {
-                m_logger.LogWarning("logsDir does not exist: {logsDir}", logsDir);
-            }
+            m_logger.LogError("Logs path does not exist: {logsDir}", logsDir);
         }
-        catch (Exception ex)
-        {
-            m_logger.LogError(ex, "Failed to enumerate files in logsDir: {logsDir}", logsDir);
-        }
-        
-        var logFileName = Path.Combine(logsDir, $"log-{DateTime.Now:yyyyMMdd}.txt"); // Rolling log file name
+`
+        // Rolling log file name, must the same as configured in Serilog, e.g. "log-.txt" with rollingInterval "Day" will generate log-20240610.txt for June 10, 2024
+        var logFileName = Path.Combine(logsDir, $"log-{DateTime.Now:yyyyMMdd}.txt"); 
         if (!File.Exists(logFileName))
         {
-            m_logger.LogInformation("Log file {logFileName} does not exist, skipping upload", logFileName);
+            m_logger.LogError("Log file {logFileName} does not exist, skipping upload", logFileName);
             return;
         }
 
@@ -85,35 +79,16 @@ public class LogUploaderService : BackgroundService
             return;
         }
 
-        var access_key  = m_configuration["CLOUDFLARE:ACCESS_KEY"];
-        var secret_key  = m_configuration["CLOUDFLARE:SECRET_KEY"];
         var bucket_name = m_configuration["CLOUDFLARE:BUCKET_NAME"];
-        var service_url = m_configuration["CLOUDFLARE:S3_URL"];
+        if (string.IsNullOrEmpty(bucket_name))
+            throw new ArgumentException("CLOUDFLARE:BUCKET_NAME is missing from configuration.");
 
         m_logger.LogInformation("Uploading log file {logFileName} (copied to {tempUploadFile}) to CloudFlare S3 {bucket}",
                                 logFileName, tempUploadFile, bucket_name);
 
-        // TODO Use Cloudflare library
-
-        var config = new AmazonS3Config
-        {
-            ServiceURL = service_url,
-            ForcePathStyle = false // using the default virtual-hosted style for CloudFlare S3
-        };
-
         try
         {
-            var client = new AmazonS3Client(access_key, secret_key, config);
-            var fileTransferUtility = new TransferUtility(client);
-            var uploadRequest = new TransferUtilityUploadRequest
-            {
-                BucketName = bucket_name,
-                Key = "logs/" + Path.GetFileName(tempUploadFile), // Store in "logs/" folder in the bucket
-                FilePath = tempUploadFile,
-                ContentType = "text/plain",
-                DisablePayloadSigning = true, // Critical for Cloudflare R2
-            };
-            await fileTransferUtility.UploadAsync(uploadRequest);
+            await m_fileUploader.UploadFile(bucket_name, tempUploadFile, "logs");
         }
         catch (Exception ex)
         {

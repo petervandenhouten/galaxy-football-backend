@@ -1,6 +1,6 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
-using Microsoft.AspNetCore.Mvc;
+using Amazon.S3.Transfer;
 using Microsoft.Extensions.Configuration;
 
 namespace GalaxyFootball.Infrastructure.Cloudflare
