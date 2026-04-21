@@ -11,6 +11,9 @@ Log.Logger = new LoggerConfiguration()
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog();
+
+builder.Configuration.AddEnvironmentVariables();
+
 builder.Services.AddControllers();
 // Register external controllers from Cloudflare.Library
 //builder.Services.AddControllers()
@@ -18,7 +21,7 @@ builder.Services.AddControllers();
 
 // Enable CORS for localhost origins
 builder.Services.AddCors(options =>
-    // TODO: For production, restrict origins instead of AllowAnyOrigin() for security.
+// TODO: For production, restrict origins instead of AllowAnyOrigin() for security.
 {
     options.AddPolicy("AllowLocalhost",
         policy => policy
@@ -29,7 +32,6 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddHostedService<LogUploaderService>();
-builder.Configuration.AddEnvironmentVariables();
 
 var app = builder.Build();
 
