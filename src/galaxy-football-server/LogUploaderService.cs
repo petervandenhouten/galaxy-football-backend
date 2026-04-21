@@ -31,7 +31,7 @@ public class LogUploaderService : BackgroundService
     private async void upload_logfiles()
     {
         var tempPath = Path.GetTempPath();
-        var logFileName = $"{tempPath}GalaxyFootball\\Logs\\log-{DateTime.Now:yyyyMMdd}.txt"; // Rolling log file name
+        var logFileName = $"{tempPath}GalaxyFootball\\logs\\log-{DateTime.Now:yyyyMMdd}.txt"; // Rolling log file name
         if (!File.Exists(logFileName))
         {
             m_logger.LogInformation("Log file {logFileName} does not exist, skipping upload", logFileName);
@@ -39,7 +39,7 @@ public class LogUploaderService : BackgroundService
         }
 
         // Copy the log file to a temp location to avoid file lock issues
-        var tempUploadFile = $"{tempPath}GalaxyFootball\\Logs\\log-{DateTime.Now:yyyy-MM-dd}.txt"; // Similar to rolling log file 
+        var tempUploadFile = $"{tempPath}GalaxyFootball\\logs\\log-{DateTime.Now:yyyy-MM-dd}.txt"; // Similar to rolling log file 
         try
         {
             File.Copy(logFileName, tempUploadFile, true);
@@ -50,12 +50,13 @@ public class LogUploaderService : BackgroundService
             return;
         }
 
-        m_logger.LogInformation("Uploading log file {logFileName} (copied to {tempUploadFile}) to CloudFlare S3", logFileName, tempUploadFile);
-
-        var access_key = m_configuration["CLOUDFLARE:ACCESS_KEY"];
-        var secret_key = m_configuration["CLOUDFLARE:SECRET_KEY"];
+        var access_key  = m_configuration["CLOUDFLARE:ACCESS_KEY"];
+        var secret_key  = m_configuration["CLOUDFLARE:SECRET_KEY"];
         var bucket_name = m_configuration["CLOUDFLARE:BUCKET_NAME"];
         var service_url = m_configuration["CLOUDFLARE:S3_URL"];
+
+        m_logger.LogInformation("Uploading log file {logFileName} (copied to {tempUploadFile}) to CloudFlare S3 {bucket}",
+                                logFileName, tempUploadFile, bucket_name);
 
         // TODO Use Cloudflare library
 
