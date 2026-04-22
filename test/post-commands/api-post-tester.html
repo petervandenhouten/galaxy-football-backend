@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>API POST Tester</title>
+</head>
+<body>
+  <form id="apiForm">
+    <label>
+      API Endpoint:
+      <input type="text" id="endpoint" value="http://localhost:8080/api/job/admin/run-daily-job" size="50">
+    </label>
+    <button type="submit" id="runBtn">Send POST</button>
+  </form>
+  <pre id="result"></pre>
+
+  <script>
+    const form = document.getElementById('apiForm');
+    const result = document.getElementById('result');
+    const button = document.getElementById('runBtn');
+    const endpoint = document.getElementById('endpoint');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      button.disabled = true;
+      result.textContent = 'Running...';
+
+      try {
+        const response = await fetch(endpoint.value, { method: 'POST' });
+        const text = await response.text();
+        result.textContent = `Status: ${response.status}\n${text}`;
+      } catch (err) {
+        result.textContent = 'Error: ' + err;
+      }
+
+      button.disabled = false;
+    });
+  </script>
+</body>
+</html>

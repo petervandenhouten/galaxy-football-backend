@@ -33,6 +33,8 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddHostedService<LogUploaderService>();
 
+builder.Services.AddScoped<JobService>();
+
 var app = builder.Build();
 
 // Use CORS policy for testing with Admin pages of localhost dev machine
