@@ -57,7 +57,11 @@ public class LogUploaderService : BackgroundService
         var logsDir     = Path.Combine(tempPath, "galaxyfootball", "logs");
         if (!Directory.Exists(logsDir))
         {
-            m_logger.LogError("Logs path does not exist: {logsDir}", logsDir);
+            m_logger.LogInformation("First logging to create folder for Logs: {logsDir}", logsDir);
+        }
+        if (!Directory.Exists(logsDir))
+        {
+            m_logger.LogError("Logs folder has not been created: {logsDir}", logsDir);
         }
 
         // Rolling log file name, must the same as configured in Serilog, e.g. "log-.txt" with rollingInterval "Day" will generate log-20240610.txt for June 10, 2024
