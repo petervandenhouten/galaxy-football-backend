@@ -24,15 +24,17 @@
     <PackageReference Include="AWSSDK.S3" Version="4.0.21.2" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.26" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.4" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.*" />
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
-    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="17.9.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="17.9.5" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\infrastructure\Cloudflare.Library\Cloudflare.Library.csproj" />
     <ProjectReference Include="..\infrastructure\Git.Library\Git.Library.csproj" />
+    <ProjectReference Include="..\infrastructure\Database.Layer\Database.Layer.csproj" />
   </ItemGroup>
 
 </Project>

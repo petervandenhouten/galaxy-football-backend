@@ -1,7 +1,10 @@
-using Serilog;
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using Serilog;
+using GalaxyFootball.Infrastructure.Database;
+using Microsoft.EntityFrameworkCore;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
 
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(new ConfigurationBuilder()
@@ -55,6 +58,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+// Resolve logger and pass to DatabaseConnection
+var databaseConnection = new DatabaseConnection(builder.Configuration);
+var connectionString = databaseConnection.ConnectionString();
+Log.Information("Using database connection string: {connectionString}", connectionString);
+// Register DbContext after verifying connection    
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString));
+
 var app = builder.Build();
 
 app.UseAuthentication();
@@ -73,6 +83,17 @@ app.UseHttpsRedirection();
 app.MapControllers(); 
 
 app.UseSerilogRequestLogging(); 
+
+var logger = app.Services.GetRequiredService<Microsoft.Extensions.Logging.ILogger<DatabaseConnection>>();
+if ( databaseConnection.TestConnectionAsync(connectionString, logger).Result )
+{
+    Log.Information("Successfully connected to the database.");
+}
+else
+{
+    Log.Error("Failed to connect to the database. Please check your connection string and database server.");
+    throw new InvalidOperationException("Database connection failed.");
+}
 
 app.Run();
 

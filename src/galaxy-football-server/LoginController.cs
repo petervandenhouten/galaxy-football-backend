@@ -3,10 +3,13 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
+using System.ComponentModel.DataAnnotations;
 
 public class LoginModel
 {
+    [Required]
     public string Username { get; set; }
+    [Required]
     public string Password { get; set; }
 }
 
@@ -24,8 +27,11 @@ public class LoginController : ControllerBase
     [HttpPost("login")]
     public IActionResult Login([FromBody] LoginModel model)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         // Validate user credentials here in database
-        if ( model.Username != "admin" || model.Password != "password")
+        if (model.Username != "admin" || model.Password != "password")
         {
             return Unauthorized(new { message = "Invalid username or password" });
         }
