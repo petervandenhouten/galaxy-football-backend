@@ -1,5 +1,6 @@
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/job")]
@@ -27,7 +28,7 @@ public class JobController : ControllerBase
         return Ok();
     }
 
-    // [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [HttpPost("admin/run-daily-job")]
     public async Task<IActionResult> RunAdmin()
     {

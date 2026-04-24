@@ -7,15 +7,15 @@ using GalaxyFootball.Infrastructure.Git;
 [Route("version")]
 public class VersionController : ControllerBase
 {
-    private readonly ILogger<VersionController> _logger;
-    private readonly IConfiguration _configuration;
+    private readonly ILogger<VersionController> m_logger;
+    private readonly IConfiguration m_configuration;
 
     public record VersionRecord(string buildtime, string branchname, string version, string description);
 
     public VersionController(ILogger<VersionController> logger, IConfiguration configuration)
     {
-        _logger = logger;
-        _configuration = configuration;
+        m_logger = logger;
+        m_configuration = configuration;
     }
 
     [HttpGet]
@@ -24,7 +24,7 @@ public class VersionController : ControllerBase
         // Use AssemblyInformationalVersionAttribute for version info
         string versionString = "unknown";
         string buildTime = GetBuildTime();
-        string description = _configuration["Description"] ?? "No description available";
+        string description = m_configuration["Description"] ?? "No description available";
         string branch = BuildInfo.GetGitBranchName();
 
         try
@@ -46,7 +46,7 @@ public class VersionController : ControllerBase
         catch { }
 
         var version = new VersionRecord(buildTime, branch, versionString, description);
-        _logger.LogInformation("Processing request at {buildtime}. Version={version}, Description={description}", version.buildtime, version.version, version.description);
+        m_logger.LogInformation("Processing request at {buildtime}. Version={version}, Description={description}", version.buildtime, version.version, version.description);
         return version; // Automatically wrapped in an OkObjectResult
     }
     private static string GetBuildTime()
