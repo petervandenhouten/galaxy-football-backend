@@ -1,58 +1,74 @@
+using Microsoft.EntityFrameworkCore;
+using GalaxyFootball.Infrastructure.Database;
+
+
+public static class AdvisoryLockConstants
+{
+    public const int JobLockKey = 12345;
+}
+
 public class JobService
 {
-    //private readonly AppDbContext _db;
-    private readonly ILogger<JobService> _logger;
+    private readonly ApplicationDbContext m_db;
+    private readonly ILogger<JobService> m_logger;
 
-    public JobService(/*AppDbContext db,*/ ILogger<JobService> logger)
+    public JobService(ApplicationDbContext db, ILogger<JobService> logger)
     {
-      //  _db = db;
-        _logger = logger;
+        m_db = db;
+        m_logger = logger;
     }
 
     public async Task RunIfNeeded()
     {
-        // await _db.Database.ExecuteSqlRawAsync("SELECT pg_advisory_lock(12345)");
+        using var transaction = await m_db.Database.BeginTransactionAsync();
+        // Lock the single Game row for update
+        var game = await m_db.Games.FromSqlRaw("SELECT * FROM \"games\" FOR UPDATE").FirstOrDefaultAsync();
+        if (game == null)
+        {
+            m_logger.LogWarning("No game state found. Cannot run job.");
+            return;
+        }
+
+        if (game.IsBatchProcessing)
+        {
+            m_logger.LogInformation("Job is already running elsewhere (Game state is locked or batch processing).");
+            return;
+        }
+
+        // Set lock flags
+        game.IsBatchProcessing = true;
+        await m_db.SaveChangesAsync();
 
         try
         {
-            //var task = await _db.SystemTasks.FindAsync("daily_job");
-            var today = DateTime.UtcNow.Date;
-
-            //if (task.LastRun.Date >= today)
-            //{
-            //    _logger.LogInformation("Daily job already ran today");
-            //    return;
-            //}
-
-             await RunJob();
-
-             //task.LastRun = DateTime.UtcNow;
-        //     await _db.SaveChangesAsync();
-
-             _logger.LogInformation("Daily job executed successfully");
+            await RunJob();
+            m_logger.LogInformation("Daily job executed successfully");
         }
         finally
         {
-            // await _db.Database.ExecuteSqlRawAsync("SELECT pg_advisory_unlock(12345)");
+            // Release lock flags
+            game.IsBatchProcessing = false;
+            await m_db.SaveChangesAsync();
+            await transaction.CommitAsync();
         }
     }
 
     public async Task ForceRun()
     {
-        _logger.LogInformation("Force running daily job");
+        m_logger.LogInformation("Force running daily job");
 
         await RunJob();
 
-        //var task = await _db.SystemTasks.FindAsync("daily_job");
+        //var task = await m_db.SystemTasks.FindAsync("daily_job");
         //task.LastRun = DateTime.UtcNow;
 
-        // await _db.SaveChangesAsync();
+        // await m_db.SaveChangesAsync();
     }
 
     private async Task RunJob()
     {
         // 🔥 YOUR ACTUAL BATCH LOGIC HERE
-        _logger.LogInformation("Running batch logic...");
+        m_logger.LogInformation("Running batch logic...");
 
         // Example:
         // - reset daily rewards

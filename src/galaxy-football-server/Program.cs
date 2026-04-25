@@ -65,7 +65,42 @@ Log.Information("Using database connection string: {connectionString}", connecti
 // Register DbContext after verifying connection    
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString));
 
+
+// Define the current software database version
+const int CurrentDatabaseVersion = 1; // Increment this when your schema changes
+
 var app = builder.Build();
+
+// On startup, check and reset database if needed
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate();
+    var game = db.Games.FirstOrDefault();
+    if (game != null && game.DatabaseVersion < CurrentDatabaseVersion)
+    {
+        // Optionally, you can drop and recreate the database, or just migrate and update the version
+        // db.Database.EnsureDeleted();
+        // db.Database.Migrate();
+        game.DatabaseVersion = CurrentDatabaseVersion;
+        db.SaveChanges();
+        Log.Information($"Database upgraded to version {CurrentDatabaseVersion}.");
+    }
+    else if (game == null)
+    {
+        // Seed initial game state if missing
+        db.Games.Add(new GalaxyFootball.Domain.Entities.Game {
+            Id = Guid.NewGuid(),
+            IsPaused = false,
+            IsLocked = false,
+            GameDate = DateTime.UtcNow,
+            IsBatchProcessing = false,
+            DatabaseVersion = CurrentDatabaseVersion
+        });
+        db.SaveChanges();
+        Log.Information($"Database seeded with initial game state version {CurrentDatabaseVersion}.");
+    }
+}
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -92,7 +127,6 @@ if ( databaseConnection.TestConnectionAsync(connectionString, logger).Result )
 else
 {
     Log.Error("Failed to connect to the database. Please check your connection string and database server.");
-    throw new InvalidOperationException("Database connection failed.");
 }
 
 app.Run();
