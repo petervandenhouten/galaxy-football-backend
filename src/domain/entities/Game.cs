@@ -5,35 +5,32 @@ namespace GalaxyFootball.Domain.Entities
     /// <summary>
     /// Represents the global state of the game.
     /// There can only be one instance of this in the database.
+    /// Defines how the calender and the league system are created.
     /// </summary>
     public class Game
     {
-        public Guid Id { get; set; }          // Primary key
-        
-        /// <summary>
-        /// Indicates if the game is currently paused.
-        /// </summary>
-        public bool IsPaused { get; set; }
+        public Guid Id { get; set; } // Primary key
 
-        /// <summary>
-        /// Indicates if the game is locked for new input.
-        /// </summary>
+        // Indexes for step-by-step processing
+        public int Year { get; set; } // Current year
+        public int Day { get; set; } // Current day index
+
+        // Calendar and league system
+        public int DaysBetweenGames { get; set; } // Days in-between games
+        public int MaxLeagueRounds { get; set; }
+        public int CurrentLeagueRound { get; set; }
+        public int MaxCupRounds { get; set; }
+        public int CurrentCupRound { get; set; }
+        public int NumberOfTeamsInLeague { get; set; }
+
+        // Game state
+        public bool IsPaused { get; set; }
+        public bool IsProcessing { get; set; }
         public bool IsLocked { get; set; }
 
-        /// <summary>
-        /// The current date of the game.
-        /// </summary>
-        public DateTime GameDate { get; set; }
-
-        /// <summary>
-        /// Indicates that batch processing is actively running
-        /// </summary>
-        public bool IsBatchProcessing { get; set; }
-
-        /// <summary>
-        /// The database version for migration tracking
-        /// </summary>
+        // Version info
         public int DatabaseVersion { get; set; }
+        public string GameVersion { get; set; } = string.Empty;
 
     }
 }

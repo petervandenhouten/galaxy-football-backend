@@ -4,6 +4,9 @@
 			"path": "src/galaxy-football-server"
 		},
 		{
+			"path": "src/application"
+		},
+		{
 			"path": "src/infrastructure/Cloudflare.Library"
 		},
 		{
@@ -14,6 +17,9 @@
 		},
 		{
 			"path": "src/infrastructure/Database.Layer"
+		},
+		{
+			"path": "test/unit-tests"
 		},
 		{
 			"path": "."

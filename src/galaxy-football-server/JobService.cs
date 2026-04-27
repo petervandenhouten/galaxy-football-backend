@@ -29,14 +29,14 @@ public class JobService
             return;
         }
 
-        if (game.IsBatchProcessing)
+        if (game.IsProcessing)
         {
-            m_logger.LogInformation("Job is already running elsewhere (Game state is locked or batch processing).");
+            m_logger.LogInformation("Job is already running elsewhere (Game state is processing).");
             return;
         }
 
         // Set lock flags
-        game.IsBatchProcessing = true;
+        game.IsProcessing = true;
         await m_db.SaveChangesAsync();
 
         try
@@ -47,7 +47,7 @@ public class JobService
         finally
         {
             // Release lock flags
-            game.IsBatchProcessing = false;
+            game.IsProcessing = false;
             await m_db.SaveChangesAsync();
             await transaction.CommitAsync();
         }

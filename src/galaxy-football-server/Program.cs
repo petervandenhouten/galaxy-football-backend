@@ -93,8 +93,9 @@ using (var scope = app.Services.CreateScope())
             Id = Guid.NewGuid(),
             IsPaused = false,
             IsLocked = false,
-            GameDate = DateTime.UtcNow,
-            IsBatchProcessing = false,
+            Year = 2026,
+            Day = 0,
+            IsProcessing = false,
             DatabaseVersion = CurrentDatabaseVersion
         });
         db.SaveChanges();

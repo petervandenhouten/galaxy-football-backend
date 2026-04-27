@@ -25,6 +25,6 @@ public class DatabaseController : ControllerBase
         {
             return NotFound(new { error = "No game state found." });
         }
-        return Ok(new { isLocked = game.IsLocked, isBatchProcessing = game.IsBatchProcessing });
+        return Ok(new { isLocked = game.IsLocked, isProcessing = game.IsProcessing, isPaused = game.IsPaused });
     }
 }
