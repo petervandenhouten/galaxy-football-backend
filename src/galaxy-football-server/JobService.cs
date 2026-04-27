@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using GalaxyFootball.Infrastructure.Database;
 
-
 public static class AdvisoryLockConstants
 {
     public const int JobLockKey = 12345;
@@ -11,11 +10,13 @@ public class JobService
 {
     private readonly ApplicationDbContext m_db;
     private readonly ILogger<JobService> m_logger;
+    private readonly ScriptRunner m_scriptRunner;
 
-    public JobService(ApplicationDbContext db, ILogger<JobService> logger)
+    public JobService(ApplicationDbContext db, ILogger<JobService> logger, ScriptRunner scriptRunner)
     {
         m_db = db;
         m_logger = logger;
+        m_scriptRunner = scriptRunner;
     }
 
     public async Task RunIfNeeded()
@@ -74,5 +75,12 @@ public class JobService
         // - reset daily rewards
         // - cleanup expired data
         // - recalculate leaderboard
+    }
+
+    public async Task ForceStartNewGame()
+    {
+        m_logger.LogInformation("Force starting new game");
+
+        m_scriptRunner.RunScriptByName("StartNewGame", "JobService");
     }
 }

@@ -42,7 +42,8 @@ public class LoginController : ControllerBase
             new Claim(ClaimTypes.Role, "Admin") // Add role claim
         };
 
-        var key = m_configuration["GALAXY_FOOTBALL_JWT_KEY"]; // or Environment.GetEnvironmentVariable("JWT_KEY")
+        var key = m_configuration["GALAXY_FOOTBALL_JWT_KEY"];
+        Console.WriteLine($"LOGIN JWT KEY: {key}");
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
 
         var creds = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -54,6 +55,9 @@ public class LoginController : ControllerBase
             expires: DateTime.Now.AddHours(1),
             signingCredentials: creds);
 
-        return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
+        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+        Console.WriteLine($"JWT TOKEN: {tokenString}");
+
+        return Ok(new { token = tokenString });
     }
 }

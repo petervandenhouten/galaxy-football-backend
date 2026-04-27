@@ -44,8 +44,6 @@ namespace GalaxyFootball.Domain.Entities
         public int LosingStreak { get; set; } // Cup and league
 
         // History
-        public List<SeasonResult> LeagueResults { get; set; } = new();
-        public List<CupResult> CupResults { get; set; } = new();
         public int AllTimeGamesWon { get; set; }
         public int AllTimeGamesLost { get; set; }
         public int AllTimeGamesDrawn { get; set; }
@@ -54,10 +52,11 @@ namespace GalaxyFootball.Domain.Entities
     }
 
     /// <summary>
-    /// Represents a club's result in a season (league or cup)
+    /// Represents a club's result in a league 
     /// </summary>
-    public class SeasonResult
+    public class SeasonLeagueResult
     {
+        public Guid Id { get; set; }
         public int SeasonYear { get; set; }
         public int DivisionLevel { get; set; } 
         public int DivisionNumber { get; set; } 
@@ -68,8 +67,9 @@ namespace GalaxyFootball.Domain.Entities
 /// <summary>
     /// Represents a club's result in a cup competition
     /// </summary>
-    public class CupResult
+    public class SeasonCupResult
     {
+        public Guid Id { get; set; }
         public int SeasonYear { get; set; }
         public int Ranking { get; set; } // e.g., 1 for champion, 2 for runner-up, 3 for semifinalist, etc.
         public string Result { get; set; } = null!;// e.g., "Lost 1-2 to X in round Y"
@@ -100,6 +100,21 @@ namespace GalaxyFootball.Domain.Entities
     {
         public Guid ClubId { get; set; }
         public Guid SponsorId { get; set; }
+    }
+
+    /// <summary>
+    /// Associative entity linking a club to a league result
+    /// </summary>
+    public class ClubLeagueResult
+    {
+        public Guid ClubId { get; set; }
+        public Guid LeagueResultId { get; set; }
+    }   
+
+    public class ClubCupResult
+    {
+        public Guid ClubId { get; set; }
+        public Guid CupResultId { get; set; }
     }
 
 }

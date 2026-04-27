@@ -10,18 +10,25 @@ namespace GalaxyFootball.Infrastructure.Database
         public DbSet<Club> Clubs => Set<Club>();
         public DbSet<Player> Players => Set<Player>();
         public DbSet<Team> Teams => Set<Team>();
+        public DbSet<Robot> Robots => Set<Robot>();
+        public DbSet<RobotBrain> RobotBrains => Set<RobotBrain>();
+        public DbSet<RobotBody> RobotBodies => Set<RobotBody>();
+        public DbSet<RobotBattery> RobotBatteries => Set<RobotBattery>();
+        public DbSet<RobotMotor> RobotMotors => Set<RobotMotor>();
+        public DbSet<AutoCoach> AutoCoaches => Set<AutoCoach>();
+        public DbSet<Stadium> Stadiums => Set<Stadium>();
+        public DbSet<LeagueResult> LeagueResults => Set<LeagueResult>();
 
         // Associative entities
-        // public DbSet<UserPlayer> UserPlayers => Set<UserPlayer>();
-        // public DbSet<PlayerClub> PlayerClubs => Set<PlayerClub>();
-        // public DbSet<ClubTeam> ClubTeams => Set<ClubTeam>();
-        // public DbSet<ClubStadium> ClubStadiums => Set<ClubStadium>();
-        // public DbSet<ClubSponsor> ClubSponsors => Set<ClubSponsor>();
-        // public DbSet<TeamRobot> TeamRobots => Set<TeamRobot>();
-        // public DbSet<TeamCompetition> TeamCompetitions => Set<TeamCompetition>();
-        // public DbSet<TeamMatchLineup> TeamMatchLineups => Set<TeamMatchLineup>();
-        // public DbSet<TeamSavedLineup> TeamSavedLineups => Set<TeamSavedLineup>();
-        // public DbSet<AutoCoachClubTeam> AutoCoachClubTeams => Set<AutoCoachClubTeam>();
+        public DbSet<UserPlayer> UserPlayers => Set<UserPlayer>();
+        public DbSet<ClubTeam> ClubTeams => Set<ClubTeam>();
+        public DbSet<ClubStadium> ClubStadiums => Set<ClubStadium>();
+        public DbSet<ClubSponsor> ClubSponsors => Set<ClubSponsor>();
+        public DbSet<TeamRobot> TeamRobots => Set<TeamRobot>();
+        public DbSet<TeamCompetition> TeamCompetitions => Set<TeamCompetition>();
+        public DbSet<TeamMatchLineup> TeamMatchLineups => Set<TeamMatchLineup>();
+        public DbSet<TeamSavedLineup> TeamSavedLineups => Set<TeamSavedLineup>();
+        public DbSet<AutoCoachClubTeam> AutoCoachClubTeams => Set<AutoCoachClubTeam>();
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -110,7 +117,124 @@ namespace GalaxyFootball.Infrastructure.Database
                 entity.HasKey(t => t.Id);
             });
 
-            // TODO: Add model configuration for associative entities as needed
+            modelBuilder.Entity<Robot>(entity =>
+            {
+                entity.ToTable("robots");
+                entity.HasKey(r => r.Id);
+                entity.Property(r => r.FirstName).IsRequired();
+                entity.Property(r => r.LastName).IsRequired();
+                entity.Property(r => r.Planet).IsRequired();
+                entity.Property(r => r.CreationDate).IsRequired();
+                entity.Property(r => r.Face).IsRequired();
+                entity.Property(r => r.BrainId).IsRequired();
+                entity.Property(r => r.BodyId).IsRequired();
+                entity.Property(r => r.MotorId).IsRequired();
+                entity.Property(r => r.BatteryId).IsRequired();
+            });
+
+            modelBuilder.Entity<RobotBrain>(entity =>
+            {
+                entity.ToTable("robot_brains");
+                entity.HasKey(b => b.Id);
+                entity.Property(b => b.BrainType).IsRequired();
+                entity.Property(b => b.ReactionTime).IsRequired();
+                entity.Property(b => b.ViewRange).IsRequired();
+                entity.Property(b => b.Anticipation).IsRequired();
+                entity.Property(b => b.ShootingAccuracy).IsRequired();
+            });
+
+            modelBuilder.Entity<RobotBody>(entity =>
+            {
+                entity.ToTable("robot_bodies");
+                entity.HasKey(b => b.Id);
+                entity.Property(b => b.Mass).IsRequired();
+                entity.Property(b => b.Traction).IsRequired();
+                entity.Property(b => b.RotationResistance).IsRequired();
+                entity.Property(b => b.ShootingPower).IsRequired();
+            });
+
+            modelBuilder.Entity<RobotBattery>(entity =>
+            {
+                entity.ToTable("robot_batteries");
+                entity.HasKey(b => b.Id);
+                entity.Property(b => b.Capacity).IsRequired();
+                entity.Property(b => b.DischargeRate).IsRequired();
+                entity.Property(b => b.ConversionEfficiency).IsRequired();
+            });
+
+            modelBuilder.Entity<RobotMotor>(entity =>
+            {
+                entity.ToTable("robot_motors");
+                entity.HasKey(m => m.Id);
+                entity.Property(m => m.MaxSpeed).IsRequired();
+                entity.Property(m => m.Acceleration).IsRequired();
+                entity.Property(m => m.Braking).IsRequired();
+                entity.Property(m => m.MaxRotationSpeed).IsRequired();
+                entity.Property(m => m.RotationAcceleration).IsRequired();
+                entity.Property(m => m.HeatGenerationRate).IsRequired();
+                entity.Property(m => m.CoolingRate).IsRequired();
+                entity.Property(m => m.MaxTemperature).IsRequired();
+            });
+
+            modelBuilder.Entity<AutoCoachClubTeam>(entity =>
+            {
+                entity.ToTable("autocoach_club_teams");
+                entity.HasKey(e => new { e.AutoCoachId, e.ClubId, e.TeamId });
+            });
+
+            modelBuilder.Entity<ClubSponsor>(entity =>
+            {
+                entity.ToTable("club_sponsors");
+                entity.HasKey(e => new { e.ClubId, e.SponsorId });
+            });
+
+            modelBuilder.Entity<UserPlayer>(entity =>
+            {
+                entity.ToTable("user_players");
+                entity.HasKey(e => new { e.UserId, e.PlayerId });
+            });
+
+            modelBuilder.Entity<ClubTeam>(entity =>
+            {
+                entity.ToTable("club_teams");
+                entity.HasKey(e => new { e.ClubId, e.TeamId });
+            });
+
+            modelBuilder.Entity<ClubStadium>(entity =>
+            {
+                entity.ToTable("club_stadiums");
+                entity.HasKey(e => new { e.ClubId, e.StadiumId });
+            });
+
+            modelBuilder.Entity<ClubSponsor>(entity =>
+            {
+                entity.ToTable("club_sponsors");
+                entity.HasKey(e => new { e.ClubId, e.SponsorId });
+            });
+
+            modelBuilder.Entity<TeamRobot>(entity =>
+            {
+                entity.ToTable("team_robots");
+                entity.HasKey(e => new { e.TeamId, e.RobotId });
+            });
+
+            modelBuilder.Entity<TeamCompetition>(entity =>
+            {
+                entity.ToTable("team_competitions");
+                entity.HasKey(e => new { e.TeamId, e.CompetitionId });
+            });
+
+            modelBuilder.Entity<TeamMatchLineup>(entity =>
+            {
+                entity.ToTable("team_match_lineups");
+                entity.HasKey(e => new { e.TeamId, e.MatchLineupId });
+            });
+
+            modelBuilder.Entity<TeamSavedLineup>(entity =>
+            {
+                entity.ToTable("team_saved_lineups");
+                entity.HasKey(e => new { e.TeamId, e.SavedLineupId });
+            });
         }
     }
 }

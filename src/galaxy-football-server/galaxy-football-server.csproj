@@ -39,6 +39,8 @@
     <ProjectReference Include="..\infrastructure\Cloudflare.Library\Cloudflare.Library.csproj" />
     <ProjectReference Include="..\infrastructure\Git.Library\Git.Library.csproj" />
     <ProjectReference Include="..\infrastructure\Database.Layer\Database.Layer.csproj" />
+    <ProjectReference Include="..\domain\domain.csproj" />
+    <ProjectReference Include="..\application\application.csproj" />
   </ItemGroup>
 
 </Project>

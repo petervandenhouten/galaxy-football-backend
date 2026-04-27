@@ -34,4 +34,13 @@ public class JobController : ControllerBase
         await m_jobService.ForceRun();
         return Ok();
     }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("admin/start-new-game")]
+    public async Task<IActionResult> StartNewGame()
+    {
+        await m_jobService.ForceStartNewGame();
+        return Ok();
+    }
+
 }

@@ -40,6 +40,11 @@ builder.Services.AddCors(options =>
 builder.Services.AddHostedService<LogUploaderService>();
 
 builder.Services.AddScoped<JobService>();
+builder.Services.AddScoped<ScriptRunner>();
+
+var key = builder.Configuration["GALAXY_FOOTBALL_JWT_KEY"];
+Console.WriteLine($"PROGRAM JWT KEY: {key}");
+var IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -50,9 +55,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = "yourIssuer",
-            ValidAudience = "yourAudience",
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("yourSuperSecretKey"))
+            ValidIssuer = "galaxy-football-backend",
+            ValidAudience = "galaxy-football-clients",
+            IssuerSigningKey = IssuerSigningKey
         };
     });
 
