@@ -1,6 +1,5 @@
 
 using Microsoft.AspNetCore.Mvc;
-using System.Reflection;
 using GalaxyFootball.Infrastructure.Git;
 
 [ApiController]
@@ -22,39 +21,13 @@ public class VersionController : ControllerBase
     public ActionResult<VersionRecord> Get()
     {
         // Use AssemblyInformationalVersionAttribute for version info
-        string versionString = "unknown";
-        string buildTime = GetBuildTime();
-        string description = m_configuration["Description"] ?? "No description available";
-        string branch = BuildInfo.GetGitBranchName();
-
-        try
-        {
-            var infoVersion = Assembly.GetExecutingAssembly()
-                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "unknown";
-            // Only display the short version (e.g., 1.2.3)
-            if (!string.IsNullOrEmpty(infoVersion))
-            {
-                // Split on '+' (for SemVer) or '-' (for pre-release) and take the first part
-                var shortVersion = infoVersion.Split('+', '-')[0];
-                versionString = shortVersion;
-            }
-            else
-            {
-                versionString = "unknown";
-            }
-        }
-        catch { }
+        string versionString = VersionInfo.GetVersion();
+        string buildTime     = VersionInfo.GetBuildTime();
+        string description   = m_configuration["Description"] ?? "No description available";
+        string branch        = BuildInfo.GetGitBranchName();
 
         var version = new VersionRecord(buildTime, branch, versionString, description);
         m_logger.LogInformation("Processing request at {buildtime}. Version={version}, Description={description}", version.buildtime, version.version, version.description);
         return version; // Automatically wrapped in an OkObjectResult
     }
-    private static string GetBuildTime()
-    {
-        return Assembly.GetExecutingAssembly()
-            .GetCustomAttributes(typeof(AssemblyMetadataAttribute), false)
-            .OfType<AssemblyMetadataAttribute>()
-            .FirstOrDefault(a => a.Key == "BuildDateTime")?.Value ?? "unknown";
-    }
-   
 }

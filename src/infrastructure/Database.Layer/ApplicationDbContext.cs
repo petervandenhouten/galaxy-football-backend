@@ -17,10 +17,17 @@ namespace GalaxyFootball.Infrastructure.Database
         public DbSet<RobotMotor> RobotMotors => Set<RobotMotor>();
         public DbSet<AutoCoach> AutoCoaches => Set<AutoCoach>();
         public DbSet<Stadium> Stadiums => Set<Stadium>();
+        public DbSet<League> Leagues => Set<League>();
         public DbSet<LeagueResult> LeagueResults => Set<LeagueResult>();
+        public DbSet<SeasonLeagueResult> SeasonLeagueResults => Set<SeasonLeagueResult>();
+        public DbSet<SeasonCupResult> SeasonCupResults => Set<SeasonCupResult>();
+        public DbSet<ClubLeagueResult> ClubLeagueResults => Set<ClubLeagueResult>();
+        public DbSet<ClubCupResult> ClubCupResults => Set<ClubCupResult>();
+        public DbSet<LeagueLeagueResult> LeagueLeagueResults => Set<LeagueLeagueResult>();
 
         // Associative entities
         public DbSet<UserPlayer> UserPlayers => Set<UserPlayer>();
+        public DbSet<PlayerClubTeam> PlayerClubTeams => Set<PlayerClubTeam>();
         public DbSet<ClubTeam> ClubTeams => Set<ClubTeam>();
         public DbSet<ClubStadium> ClubStadiums => Set<ClubStadium>();
         public DbSet<ClubSponsor> ClubSponsors => Set<ClubSponsor>();
@@ -38,6 +45,13 @@ namespace GalaxyFootball.Infrastructure.Database
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<League>(entity =>
+            {
+                entity.ToTable("leagues");
+                entity.HasKey(l => l.Id);
+                entity.Property(l => l.Level).IsRequired();
+                entity.Property(l => l.Number).IsRequired();
+            });
 
             modelBuilder.Entity<User>(entity =>
             {
@@ -124,7 +138,8 @@ namespace GalaxyFootball.Infrastructure.Database
                 entity.Property(r => r.FirstName).IsRequired();
                 entity.Property(r => r.LastName).IsRequired();
                 entity.Property(r => r.Planet).IsRequired();
-                entity.Property(r => r.CreationDate).IsRequired();
+                entity.Property(r => r.CreationYear).IsRequired();
+                entity.Property(r => r.CreationDay).IsRequired();
                 entity.Property(r => r.Face).IsRequired();
                 entity.Property(r => r.BrainId).IsRequired();
                 entity.Property(r => r.BodyId).IsRequired();
@@ -234,6 +249,121 @@ namespace GalaxyFootball.Infrastructure.Database
             {
                 entity.ToTable("team_saved_lineups");
                 entity.HasKey(e => new { e.TeamId, e.SavedLineupId });
+            });
+
+            modelBuilder.Entity<PlayerClubTeam>(entity =>
+            {
+                entity.ToTable("player_club_teams");
+                entity.HasKey(e => new { e.PlayerId, e.ClubId, e.TeamId });
+            });
+
+            modelBuilder.Entity<LeagueResult>(entity =>
+            {
+                entity.ToTable("league_results");
+                entity.HasKey(lr => lr.Id);
+                entity.Property(lr => lr.TeamId).IsRequired();
+                entity.Property(lr => lr.CompetitionId).IsRequired();
+                entity.Property(lr => lr.HomePlayed).IsRequired();
+                entity.Property(lr => lr.HomeWins).IsRequired();
+                entity.Property(lr => lr.HomeDraws).IsRequired();
+                entity.Property(lr => lr.HomeLosses).IsRequired();
+                entity.Property(lr => lr.HomeGoalsFor).IsRequired();
+                entity.Property(lr => lr.HomeGoalsAgainst).IsRequired();
+                entity.Property(lr => lr.AwayPlayed).IsRequired();
+                entity.Property(lr => lr.AwayWins).IsRequired();
+                entity.Property(lr => lr.AwayDraws).IsRequired();
+                entity.Property(lr => lr.AwayLosses).IsRequired();
+                entity.Property(lr => lr.AwayGoalsFor).IsRequired();
+                entity.Property(lr => lr.AwayGoalsAgainst).IsRequired();
+                entity.Property(lr => lr.WinningStreak).IsRequired();
+                entity.Property(lr => lr.LosingStreak).IsRequired();
+                entity.Property(lr => lr.MatchResults).IsRequired();
+            });
+
+            modelBuilder.Entity<SeasonLeagueResult>(entity =>
+            {
+                entity.ToTable("season_league_results");
+                entity.HasKey(slr => slr.Id);
+                entity.Property(slr => slr.SeasonYear).IsRequired();
+                entity.Property(slr => slr.DivisionLevel).IsRequired();
+                entity.Property(slr => slr.DivisionNumber).IsRequired();
+                entity.Property(slr => slr.Ranking).IsRequired();
+                entity.Property(slr => slr.Result).IsRequired();
+            });
+
+            modelBuilder.Entity<SeasonCupResult>(entity =>
+            {
+                entity.ToTable("season_cup_results");
+                entity.HasKey(scr => scr.Id);
+                entity.Property(scr => scr.SeasonYear).IsRequired();
+                entity.Property(scr => scr.Ranking).IsRequired();
+                entity.Property(scr => scr.Result).IsRequired();
+            });
+
+                        modelBuilder.Entity<PlayerClubTeam>(entity =>
+            {
+                entity.ToTable("player_club_teams");
+                entity.HasKey(e => new { e.PlayerId, e.ClubId, e.TeamId });
+            });
+
+            modelBuilder.Entity<ClubTeam>(entity =>
+            {
+                entity.ToTable("club_teams");
+                entity.HasKey(e => new { e.ClubId, e.TeamId });
+            });
+
+            modelBuilder.Entity<ClubStadium>(entity =>
+            {
+                entity.ToTable("club_stadiums");
+                entity.HasKey(e => new { e.ClubId, e.StadiumId });
+            });
+
+            modelBuilder.Entity<ClubSponsor>(entity =>
+            {
+                entity.ToTable("club_sponsors");
+                entity.HasKey(e => new { e.ClubId, e.SponsorId });
+            });
+
+            modelBuilder.Entity<ClubLeagueResult>(entity =>
+            {
+                entity.ToTable("club_league_results");
+                entity.HasKey(e => new { e.ClubId, e.LeagueResultId });
+            });
+
+            modelBuilder.Entity<ClubCupResult>(entity =>
+            {
+                entity.ToTable("club_cup_results");
+                entity.HasKey(e => new { e.ClubId, e.CupResultId });
+            });
+
+            modelBuilder.Entity<TeamRobot>(entity =>
+            {
+                entity.ToTable("team_robots");
+                entity.HasKey(e => new { e.TeamId, e.RobotId });
+            });
+
+            modelBuilder.Entity<TeamCompetition>(entity =>
+            {
+                entity.ToTable("team_competitions");
+                entity.HasKey(e => new { e.TeamId, e.CompetitionId });
+            });
+
+            modelBuilder.Entity<TeamMatchLineup>(entity =>
+            {
+                entity.ToTable("team_match_lineups");
+                entity.HasKey(e => new { e.TeamId, e.MatchLineupId });
+            });
+
+            modelBuilder.Entity<TeamSavedLineup>(entity =>
+            {
+                entity.ToTable("team_saved_lineups");
+                entity.HasKey(e => new { e.TeamId, e.SavedLineupId });
+            });
+
+            modelBuilder.Entity<LeagueLeagueResult>(entity =>
+            {
+                entity.ToTable("league_league_results");
+                entity.HasKey(e => new { e.LeagueId, e.LeagueResultId });
             });
         }
     }

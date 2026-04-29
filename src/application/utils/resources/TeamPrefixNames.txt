@@ -3,6 +3,8 @@ Borussia
 Club
 Alianza
 Atletico
+Atlethic
+Atlético
 International
 Real
 Sporting
@@ -11,7 +13,34 @@ Union
 AC
 ASEC
 SC
+Olympique
 Olympique de
 Olympic
+Olympico
 Sport
 SC
+VfB
+ASD
+Dynamo
+Spartak
+Lokomotiv
+Metalist
+Nacional
+Racing
+Deportivo
+Club Atlético
+Club Deportivo
+Club Sportivo
+Club Nacional
+Sport Club
+Sporting Club
+Athletic Club
+Racing Club
+Universidad
+Universitario
+Academy
+Real Club
+Associação
+TSV
+Inter
+Sportif

@@ -15,7 +15,8 @@ namespace GalaxyFootball.Domain.Entities
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string Planet { get; set; } = string.Empty;
-        public DateTime CreationDate { get; set; }
+        public int CreationDay { get; set; }
+        public int CreationYear { get; set; }
         public string Face { get; set; } = string.Empty;
 
         // Component references
@@ -25,11 +26,11 @@ namespace GalaxyFootball.Domain.Entities
         public Guid BatteryId { get; set; }
 
         // Management attributes
-        public double CurrentMentalShape { get; set; } 
-        public double CurrentCondition { get; set; } 
-        public double WearSpeed { get; set; }
-        public double RecoveryRate { get; set; }
-        public double Fatigue { get; set; }
+        public int CurrentMentalShape { get; set; }
+        public int CurrentCondition { get; set; }
+        public int WearSpeed { get; set; }
+        public int RecoveryRate { get; set; }
+        public int Fatigue { get; set; }
 
         // Unavailability
         public int MatchesBannedRemaining { get; set; }
@@ -43,10 +44,10 @@ namespace GalaxyFootball.Domain.Entities
     {
         public Guid Id { get; set; }
         public BrainType BrainType { get; set; }
-        public double ReactionTime { get; set; }
-        public double ViewRange { get; set; }
-        public double Anticipation { get; set; }
-        public double ShootingAccuracy { get; set; }
+        public int ReactionTime { get; set; }
+        public int ViewRange { get; set; }
+        public int Anticipation { get; set; }
+        public int ShootingAccuracy { get; set; }
     }
 
     public enum BrainType
@@ -65,10 +66,10 @@ namespace GalaxyFootball.Domain.Entities
     public class RobotBody
     {
         public Guid Id { get; set; }
-        public double Mass { get; set; }
-        public double Traction { get; set; }
-        public double RotationResistance { get; set; }
-        public double ShootingPower { get; set; }
+        public int Mass { get; set; }
+        public int Traction { get; set; }
+        public int RotationResistance { get; set; }
+        public int ShootingPower { get; set; }
     }
 
     /// <summary>
@@ -77,9 +78,9 @@ namespace GalaxyFootball.Domain.Entities
     public class RobotBattery
     {
         public Guid Id { get; set; }
-        public double Capacity { get; set; }
-        public double DischargeRate { get; set; }
-        public double ConversionEfficiency { get; set; }
+        public int Capacity { get; set; }
+        public int DischargeRate { get; set; }
+        public int ConversionEfficiency { get; set; }
     }
 
     /// <summary>
@@ -88,13 +89,13 @@ namespace GalaxyFootball.Domain.Entities
     public class RobotMotor
     {
         public Guid Id { get; set; }
-        public double MaxSpeed { get; set; }
-        public double Acceleration { get; set; }
-        public double Braking { get; set; }
-        public double MaxRotationSpeed { get; set; }
-        public double RotationAcceleration { get; set; }
-        public double HeatGenerationRate { get; set; }
-        public double CoolingRate { get; set; }
-        public double MaxTemperature { get; set; }
+        public int MaxSpeed { get; set; }
+        public int Acceleration { get; set; }
+        public int Braking { get; set; }
+        public int MaxRotationSpeed { get; set; }
+        public int RotationAcceleration { get; set; }
+        public int HeatGenerationRate { get; set; }
+        public int CoolingRate { get; set; }
+        public int MaxTemperature { get; set; }
     }
 }

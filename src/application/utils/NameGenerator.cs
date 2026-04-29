@@ -64,43 +64,50 @@ namespace GalaxyFootball.Application.Utils
 
         public string GetName()
         {
-            return GetFirstName() + " " + GetLastName();
+            return ((GetFirstName() ?? string.Empty) + " " + (GetLastName() ?? string.Empty)).Trim();
         }
         public string GetFirstName()
         {
             var first = first_names[m_random.Next(first_names.Count)];
-            return first;
+            return first ?? string.Empty;
         }
 
         public string GetLastName()
         {
             var last = last_names[m_random.Next(last_names.Count)];
-            return last;
+            return last ?? string.Empty;
         }
+        
+        public string GetPlanetName()
+        {
+            return GetTeamName();
+        }
+
         protected string GetTeamName()
         {
             var last = team_names[m_random.Next(team_names.Count)];
-            return last;
+            return last ?? string.Empty;
         }
         protected string GetTeamPostfix()
         {
             var last = team_postfix[m_random.Next(team_postfix.Count)];
-            return last;
+            return last ?? string.Empty;
         }
         protected string GetTeamPrefix()
         {
             var last = team_prefix[m_random.Next(team_prefix.Count)];
-            return last;
+            return last ?? string.Empty;
         }
 
-        public string GetClubName()
+        public string GetClubName(string planetName = null)
         {
             string name = string.Empty;
             double x = m_random.NextDouble();
             if (x > 0.6) name += GetTeamPrefix() + " ";
-            name += GetTeamName();
+            name += string.IsNullOrEmpty(planetName) ? GetTeamName() : planetName;
             if (x < 0.4) name += " " + GetTeamPostfix();
-            return name.Trim();
+            // Defensive: always return non-null
+            return (name ?? string.Empty).Trim();
         }
     }
 }

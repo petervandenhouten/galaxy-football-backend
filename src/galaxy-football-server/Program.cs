@@ -80,7 +80,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql
 
 
 // Define the current software database version
-const int CurrentDatabaseVersion = 2; // Increment this when your schema changes
+const int CurrentDatabaseVersion = 4; // Increment this when your schema changes
 
 var app = builder.Build();
 
@@ -106,7 +106,7 @@ using (var scope = app.Services.CreateScope())
             Id = Guid.NewGuid(),
             IsPaused = false,
             IsLocked = false,
-            Year = 2026,
+            Year = 1,
             Day = 0,
             IsProcessing = false,
             DatabaseVersion = CurrentDatabaseVersion

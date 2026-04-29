@@ -38,3 +38,93 @@ Whalers
 Athletics
 Highlanders
 Chiefs
+Ironclads
+Warhawks
+Outlaws
+Thunderforge
+Grizzlies
+Night Raiders
+Steel Titans
+Red Legion
+Stormbreakers
+Vanguards
+Pulse
+Skyline
+Phantoms
+Blaze
+Velocity
+Eclipse
+Neon
+Drift
+Cyclones
+Mirage
+Frostwolves
+Glaciers
+Ice Wardens
+Polar Kings
+Avalanche
+Black Icemen
+Tundra Blades
+Arctic Foxes
+Snow Raiders
+Frozen Legion
+Pioneers
+Guardians
+Mariners
+Mountaineers
+Sentinels
+Navigators
+Colonials
+Voyagers
+Miners
+Rangers
+Lumberjacks
+Frontiersmen
+Express
+Railers
+Pilots
+Captains
+Commanders
+Generals
+Admirals
+Knights
+Barons
+Royals
+Kingsmen
+Rebels
+Renegades
+Bandits
+Bruisers
+Enforcers
+Bulldogs
+Mustangs
+Coyotes
+Stallions
+Bison
+Rhinos
+Wolverines
+Falcons
+Condors
+Firebirds
+Vipers
+Cobras
+Scorpions
+Sharks
+Barracudas
+Tritons
+Tempest
+Hurricanes
+Tornadoes
+Lightning
+Thunder
+Inferno
+Wildfire
+Embers
+Fury
+Riot
+Surge
+Rush
+Impact
+Force
+Drive
+Dynasty

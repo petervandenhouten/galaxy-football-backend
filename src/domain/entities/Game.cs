@@ -5,14 +5,14 @@ namespace GalaxyFootball.Domain.Entities
     /// <summary>
     /// Represents the global state of the game.
     /// There can only be one instance of this in the database.
-    /// Defines how the calender and the league system are created.
+    /// Defines how the calendar and the league system are created.
     /// </summary>
     public class Game
     {
         public Guid Id { get; set; } // Primary key
 
         // Indexes for step-by-step processing
-        public int Year { get; set; } // Current year
+        public int Year { get; set; } // Current year/season
         public int Day { get; set; } // Current day index
 
         // Calendar and league system

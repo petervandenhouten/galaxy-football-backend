@@ -3,6 +3,7 @@ using System;
 using GalaxyFootball.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Database.Layer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260429201853_database-version-3")]
+    partial class databaseversion3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -426,24 +429,21 @@ namespace Database.Layer.Migrations
                     b.Property<Guid>("BrainId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("CreationDay")
-                        .HasColumnType("integer");
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("CreationYear")
-                        .HasColumnType("integer");
+                    b.Property<double>("CurrentCondition")
+                        .HasColumnType("double precision");
 
-                    b.Property<int>("CurrentCondition")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("CurrentMentalShape")
-                        .HasColumnType("integer");
+                    b.Property<double>("CurrentMentalShape")
+                        .HasColumnType("double precision");
 
                     b.Property<string>("Face")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Fatigue")
-                        .HasColumnType("integer");
+                    b.Property<double>("Fatigue")
+                        .HasColumnType("double precision");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -466,14 +466,14 @@ namespace Database.Layer.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("RecoveryRate")
-                        .HasColumnType("integer");
+                    b.Property<double>("RecoveryRate")
+                        .HasColumnType("double precision");
 
                     b.Property<Guid?>("TeamId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("WearSpeed")
-                        .HasColumnType("integer");
+                    b.Property<double>("WearSpeed")
+                        .HasColumnType("double precision");
 
                     b.HasKey("Id");
 
@@ -486,14 +486,14 @@ namespace Database.Layer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<int>("Capacity")
-                        .HasColumnType("integer");
+                    b.Property<double>("Capacity")
+                        .HasColumnType("double precision");
 
-                    b.Property<int>("ConversionEfficiency")
-                        .HasColumnType("integer");
+                    b.Property<double>("ConversionEfficiency")
+                        .HasColumnType("double precision");
 
-                    b.Property<int>("DischargeRate")
-                        .HasColumnType("integer");
+                    b.Property<double>("DischargeRate")
+                        .HasColumnType("double precision");
 
                     b.HasKey("Id");
 
@@ -506,17 +506,17 @@ namespace Database.Layer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<int>("Mass")
-                        .HasColumnType("integer");
+                    b.Property<double>("Mass")
+                        .HasColumnType("double precision");
 
-                    b.Property<int>("RotationResistance")
-                        .HasColumnType("integer");
+                    b.Property<double>("RotationResistance")
+                        .HasColumnType("double precision");
 
-                    b.Property<int>("ShootingPower")
-                        .HasColumnType("integer");
+                    b.Property<double>("ShootingPower")
+                        .HasColumnType("double precision");
 
-                    b.Property<int>("Traction")
-                        .HasColumnType("integer");
+                    b.Property<double>("Traction")
+                        .HasColumnType("double precision");
 
                     b.HasKey("Id");
 
@@ -529,20 +529,20 @@ namespace Database.Layer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<int>("Anticipation")
-                        .HasColumnType("integer");
+                    b.Property<double>("Anticipation")
+                        .HasColumnType("double precision");
 
                     b.Property<int>("BrainType")
                         .HasColumnType("integer");
 
-                    b.Property<int>("ReactionTime")
-                        .HasColumnType("integer");
+                    b.Property<double>("ReactionTime")
+                        .HasColumnType("double precision");
 
-                    b.Property<int>("ShootingAccuracy")
-                        .HasColumnType("integer");
+                    b.Property<double>("ShootingAccuracy")
+                        .HasColumnType("double precision");
 
-                    b.Property<int>("ViewRange")
-                        .HasColumnType("integer");
+                    b.Property<double>("ViewRange")
+                        .HasColumnType("double precision");
 
                     b.HasKey("Id");
 
@@ -555,29 +555,29 @@ namespace Database.Layer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<int>("Acceleration")
-                        .HasColumnType("integer");
+                    b.Property<double>("Acceleration")
+                        .HasColumnType("double precision");
 
-                    b.Property<int>("Braking")
-                        .HasColumnType("integer");
+                    b.Property<double>("Braking")
+                        .HasColumnType("double precision");
 
-                    b.Property<int>("CoolingRate")
-                        .HasColumnType("integer");
+                    b.Property<double>("CoolingRate")
+                        .HasColumnType("double precision");
 
-                    b.Property<int>("HeatGenerationRate")
-                        .HasColumnType("integer");
+                    b.Property<double>("HeatGenerationRate")
+                        .HasColumnType("double precision");
 
-                    b.Property<int>("MaxRotationSpeed")
-                        .HasColumnType("integer");
+                    b.Property<double>("MaxRotationSpeed")
+                        .HasColumnType("double precision");
 
-                    b.Property<int>("MaxSpeed")
-                        .HasColumnType("integer");
+                    b.Property<double>("MaxSpeed")
+                        .HasColumnType("double precision");
 
-                    b.Property<int>("MaxTemperature")
-                        .HasColumnType("integer");
+                    b.Property<double>("MaxTemperature")
+                        .HasColumnType("double precision");
 
-                    b.Property<int>("RotationAcceleration")
-                        .HasColumnType("integer");
+                    b.Property<double>("RotationAcceleration")
+                        .HasColumnType("double precision");
 
                     b.HasKey("Id");
 
