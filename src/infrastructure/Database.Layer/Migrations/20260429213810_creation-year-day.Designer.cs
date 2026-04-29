@@ -13,7 +13,7 @@ namespace Database.Layer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("20260429213810_creation-year-day")]
-    partial class creationyearday
+    partial class CreationYearDay
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

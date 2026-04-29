@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Database.Layer.Migrations
 {
     /// <inheritdoc />
-    public partial class creationyearday : Migration
+    public partial class CreationYearDay : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
