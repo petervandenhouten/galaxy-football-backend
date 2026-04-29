@@ -35,21 +35,25 @@ namespace GalaxyFootball.Application.Utils
         protected bool loadNamesFromResource(StringCollection collection, string resourceFileName)
         {
             var assembly = Assembly.GetExecutingAssembly();
-            string resourceName = assembly.GetManifestResourceNames()
-                .FirstOrDefault(r => r.EndsWith($"utils.resources.{resourceFileName}", StringComparison.OrdinalIgnoreCase));
-            if (resourceName == null)
+            string? resourceName = assembly.GetManifestResourceNames()
+                .FirstOrDefault(r => r != null && r.EndsWith($"utils.resources.{resourceFileName}", StringComparison.OrdinalIgnoreCase));
+            if (string.IsNullOrEmpty(resourceName))
                 return false;
 
-            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
-            using (StreamReader reader = new StreamReader(stream))
+            using (Stream? stream = assembly.GetManifestResourceStream(resourceName))
             {
-                string line;
-                while ((line = reader.ReadLine()) != null)
+                if (stream == null)
+                    return false;
+                using (StreamReader reader = new StreamReader(stream))
                 {
-                    if (line.Length > 0 && line[0] != '#')
+                    string? line;
+                    while ((line = reader.ReadLine()) != null)
                     {
-                        var name = line.Trim();
-                        collection.Add(name);
+                        if (line.Length > 0 && line[0] != '#')
+                        {
+                            var name = line.Trim();
+                            collection.Add(name);
+                        }
                     }
                 }
             }
@@ -68,12 +72,16 @@ namespace GalaxyFootball.Application.Utils
         }
         public string GetFirstName()
         {
+            if (first_names == null || first_names.Count == 0)
+                return string.Empty;
             var first = first_names[m_random.Next(first_names.Count)];
             return first ?? string.Empty;
         }
 
         public string GetLastName()
         {
+            if (last_names == null || last_names.Count == 0)
+                return string.Empty;
             var last = last_names[m_random.Next(last_names.Count)];
             return last ?? string.Empty;
         }
@@ -85,21 +93,27 @@ namespace GalaxyFootball.Application.Utils
 
         protected string GetTeamName()
         {
+            if (team_names == null || team_names.Count == 0)
+                return string.Empty;
             var last = team_names[m_random.Next(team_names.Count)];
             return last ?? string.Empty;
         }
         protected string GetTeamPostfix()
         {
+            if (team_postfix == null || team_postfix.Count == 0)
+                return string.Empty;
             var last = team_postfix[m_random.Next(team_postfix.Count)];
             return last ?? string.Empty;
         }
         protected string GetTeamPrefix()
         {
+            if (team_prefix == null || team_prefix.Count == 0)
+                return string.Empty;
             var last = team_prefix[m_random.Next(team_prefix.Count)];
             return last ?? string.Empty;
         }
 
-        public string GetClubName(string planetName = null)
+        public string GetClubName(string? planetName = null)
         {
             string name = string.Empty;
             double x = m_random.NextDouble();

@@ -82,7 +82,12 @@ namespace GalaxyFootball.Application.Factories
         private static TEnum GetRandomEnum<TEnum>() where TEnum : Enum
         {
             var values = Enum.GetValues(typeof(TEnum));
-            return (TEnum)values.GetValue(_random.Next(values.Length));
+            if (values.Length == 0)
+                throw new InvalidOperationException($"Enum '{typeof(TEnum).Name}' has no values.");
+            var value = values.GetValue(_random.Next(values.Length));
+            if (value is null)
+                throw new InvalidOperationException($"Failed to get a random value for enum '{typeof(TEnum).Name}'.");
+            return (TEnum)value;
         }
     }
 }

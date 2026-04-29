@@ -66,7 +66,7 @@ public class JobService
         // await m_db.SaveChangesAsync();
     }
 
-    private async Task RunJob()
+    private /* async */ Task RunJob()
     {
         // 🔥 YOUR ACTUAL BATCH LOGIC HERE
         m_logger.LogInformation("Running batch logic...");
@@ -75,6 +75,7 @@ public class JobService
         // - reset daily rewards
         // - cleanup expired data
         // - recalculate leaderboard
+        return Task.CompletedTask;
     }
 
     public async Task ForceStartNewGame()

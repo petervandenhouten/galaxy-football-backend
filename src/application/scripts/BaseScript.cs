@@ -25,7 +25,9 @@ namespace GalaxyFootball.Application.Scripts
         /// <typeparam name="TScript">The script type to run.</typeparam>
         protected async Task RunScript<TScript>() where TScript : BaseScript
         {
-            var script = (TScript)Activator.CreateInstance(typeof(TScript), m_db, m_loggerFactory);
+            var scriptObj = Activator.CreateInstance(typeof(TScript), m_db, m_loggerFactory);
+            if (scriptObj is not TScript script)
+                throw new InvalidOperationException($"Could not create instance of {typeof(TScript).Name}.");
             if (script.CanRun())
             {
                 await script.Run();
