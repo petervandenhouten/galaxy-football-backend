@@ -43,23 +43,31 @@ builder.Services.AddScoped<JobService>();
 builder.Services.AddScoped<ScriptRunner>();
 
 var key = builder.Configuration["GALAXY_FOOTBALL_JWT_KEY"];
-Console.WriteLine($"PROGRAM JWT KEY: {key}");
-var IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+if (string.IsNullOrEmpty(key))
+{
+    Log.Error("GALAXY_FOOTBALL_JWT_KEY is missing from configuration. JWT authentication will not work.");
+}
+else
+{
+    Console.WriteLine($"PROGRAM JWT KEY: {key}");
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
+    var IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = "galaxy-football-backend",
-            ValidAudience = "galaxy-football-clients",
-            IssuerSigningKey = IssuerSigningKey
-        };
-    });
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = "galaxy-football-backend",
+                ValidAudience = "galaxy-football-clients",
+                IssuerSigningKey = IssuerSigningKey
+            };
+        });
+}
 
 builder.Services.AddAuthorization();
 
@@ -72,7 +80,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql
 
 
 // Define the current software database version
-const int CurrentDatabaseVersion = 1; // Increment this when your schema changes
+const int CurrentDatabaseVersion = 2; // Increment this when your schema changes
 
 var app = builder.Build();
 

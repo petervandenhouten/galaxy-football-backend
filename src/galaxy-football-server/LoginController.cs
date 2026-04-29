@@ -8,9 +8,9 @@ using System.ComponentModel.DataAnnotations;
 public class LoginModel
 {
     [Required]
-    public string Username { get; set; }
+    public string Username { get; set; } = string.Empty;
     [Required]
-    public string Password { get; set; }
+    public string Password { get; set; } = string.Empty;
 }
 
 [ApiController]
@@ -31,7 +31,7 @@ public class LoginController : ControllerBase
             return BadRequest(ModelState);
 
         // Validate user credentials here in database
-        if (model.Username != "admin" || model.Password != "password")
+        if (model.Username != "admin" || model.Password != "bergkamp")
         {
             return Unauthorized(new { message = "Invalid username or password" });
         }
@@ -42,9 +42,12 @@ public class LoginController : ControllerBase
             new Claim(ClaimTypes.Role, "Admin") // Add role claim
         };
 
+        // todo: check users table for the user/password combination and
+        //       return appropriate claims based on the user's roles/permissions
+
         var key = m_configuration["GALAXY_FOOTBALL_JWT_KEY"];
         Console.WriteLine($"LOGIN JWT KEY: {key}");
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key ?? string.Empty));
 
         var creds = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
@@ -52,7 +55,7 @@ public class LoginController : ControllerBase
             issuer: "galaxy-football-backend",
             audience: "galaxy-football-clients",
             claims: claims,
-            expires: DateTime.Now.AddHours(1),
+            expires: DateTime.Now.AddHours(12),
             signingCredentials: creds);
 
         var tokenString = new JwtSecurityTokenHandler().WriteToken(token);

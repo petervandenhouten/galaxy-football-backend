@@ -1,16 +1,35 @@
 
+using GalaxyFootball.Infrastructure.Database;
+using Microsoft.Extensions.Logging;
+
 namespace GalaxyFootball.Application.Scripts
 {
     public abstract class BaseScript
     {
-        //protected readonly Game m_game;
+        protected readonly ApplicationDbContext m_db;
+        protected readonly ILoggerFactory m_loggerFactory;
 
-        public BaseScript()
+        public BaseScript(ApplicationDbContext db, ILoggerFactory loggerFactory)
         {
-            
+            m_db = db;
+            m_loggerFactory = loggerFactory;
         }
-        abstract public void Run();
+        abstract public Task Run();
         abstract public bool CanRun();
+        //abstract public Task RunAsync();
+        //abstract public Task<bool> CanRunAsync();
 
+        /// <summary>
+        /// Runs another script, passing the current db and logger.
+        /// </summary>
+        /// <typeparam name="TScript">The script type to run.</typeparam>
+        protected async Task RunScript<TScript>() where TScript : BaseScript
+        {
+            var script = (TScript)Activator.CreateInstance(typeof(TScript), m_db, m_loggerFactory);
+            if (script.CanRun())
+            {
+                await script.Run();
+            }
+        }
     }
 }

@@ -80,7 +80,6 @@ public class JobService
     public async Task ForceStartNewGame()
     {
         m_logger.LogInformation("Force starting new game");
-
-        m_scriptRunner.RunScriptByName("StartNewGame", "JobService");
+        await m_scriptRunner.RunScriptByName("StartNewGame");
     }
 }

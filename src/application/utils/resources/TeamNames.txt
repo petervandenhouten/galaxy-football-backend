@@ -29,3 +29,51 @@ London
 Rio de Janeiro
 São Paulo
 Carapicuíba
+Tatooine
+Arrakis
+Vulcan
+Krypton
+Pandora
+Coruscant
+Naboo
+Alderaan
+Trantor
+Terminus
+Giedi Prime
+Caladan
+Barsoom
+Anarres
+Urras
+Solaris
+Ego
+Sakaar
+Gallifrey
+Skaro
+Cybertron
+Remus
+Qo'noS
+Pern
+Klendathu
+Reach
+Harvest
+Helion Prime
+Zebes
+Tallon
+Caprica
+Gemenon
+Kobol
+Rylos
+Lessu
+Dagobah
+Yavin
+Endor
+Hoth
+Bespin
+Cloud City
+Corellia
+Lothal
+Mandalore
+Sullust
+Eadu
+Jedha
+Norion

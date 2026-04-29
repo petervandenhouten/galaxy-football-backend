@@ -1,5 +1,7 @@
+using System.Threading.Tasks;
 using GalaxyFootball.Application.Scripts;
 using GalaxyFootball.Infrastructure.Database;
+using Microsoft.Extensions.Logging;
 
 /// <summary>
 /// Responsible for running scripts derived from BaseScript.
@@ -8,43 +10,42 @@ using GalaxyFootball.Infrastructure.Database;
 public class ScriptRunner
 {
     private readonly ApplicationDbContext m_db;
-    private readonly ILogger<ScriptRunner> m_logger;
+    private readonly ILoggerFactory m_loggerFactory;
 
     /// <summary>
     /// Initializes a new instance of ScriptRunner 
     /// </summary>
-    public ScriptRunner(ApplicationDbContext db, ILogger<ScriptRunner> logger)
+    public ScriptRunner(ApplicationDbContext db, ILoggerFactory loggerFactory)
     {
         m_db = db;
-        m_logger = logger;
+        m_loggerFactory = loggerFactory;
     }
 
     /// <summary>
     /// Runs the given script if it can run.
     /// </summary>
     /// <param name="script">The script to run.</param>
-    /// <param name="loggerName">The logger name to use for this script instance.</param>
-    public void RunScript(BaseScript script, string loggerName)
+    public async Task RunScript(BaseScript script)
     {
         if (script == null) throw new ArgumentNullException(nameof(script));
-        
+        var logger = m_loggerFactory.CreateLogger(script.GetType());
+        logger.LogInformation("Running script: {ScriptName}", script.GetType().Name);
         if (script.CanRun())
         {
-            m_logger.LogInformation("Running script: {ScriptName}", script.GetType().Name);
             try
             {
-                script.Run();
-                m_logger.LogInformation("Script {ScriptName} completed successfully.", script.GetType().Name);
+                await script.Run();
+                logger.LogInformation("Script {ScriptName} completed successfully.", script.GetType().Name);
             }
             catch (Exception ex)
             {
-                m_logger.LogError(ex, "Script {ScriptName} failed.", script.GetType().Name);
+                logger.LogError(ex, "Script {ScriptName} failed.", script.GetType().Name);
                 throw;
             }
         }
         else
         {
-            m_logger.LogWarning("Script {ScriptName} cannot run.", script.GetType().Name);
+            logger.LogWarning("Script {ScriptName} cannot run.", script.GetType().Name);
         }
     }
 
@@ -53,26 +54,31 @@ public class ScriptRunner
     /// </summary>
     /// <param name="scriptClassName">The name of the script class to find (case-sensitive).</param>
     /// <returns>An instance of the script, or null if not found.</returns>
-    public BaseScript? CreateScriptByName(string scriptClassName)
+    protected BaseScript? CreateScriptByName(string scriptClassName)
     {
         var scriptType = AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(a => a.GetTypes())
             .FirstOrDefault(t => t.IsClass && !t.IsAbstract && typeof(BaseScript).IsAssignableFrom(t) && t.Name == scriptClassName);
         if (scriptType == null)
             return null;
-        return Activator.CreateInstance(scriptType) as BaseScript;
+
+        // Look for a constructor (ApplicationDbContext, ILoggerFactory)
+        var ctor = scriptType.GetConstructor(new[] { typeof(ApplicationDbContext), typeof(ILoggerFactory) });
+        if (ctor == null)
+            throw new InvalidOperationException($"Script class '{scriptClassName}' does not have the required constructor.");
+
+        return ctor.Invoke(new object[] { m_db, m_loggerFactory }) as BaseScript;
     }
 
     /// <summary>
     /// Runs a script by its class name, if found and can run.
     /// </summary>
     /// <param name="scriptClassName">The name of the script class to run.</param>
-    /// <param name="loggerName">The logger name to use for this script instance.</param>
-    public void RunScriptByName(string scriptClassName, string loggerName)
+    public async Task RunScriptByName(string scriptClassName)
     {
         var script = CreateScriptByName(scriptClassName);
         if (script == null)
             throw new InvalidOperationException($"Script class '{scriptClassName}' not found.");
-        RunScript(script, loggerName);
+        await RunScript(script);
     }
 }
