@@ -1,6 +1,4 @@
-
 using Microsoft.AspNetCore.Mvc;
-using GalaxyFootball.Infrastructure.Git;
 
 [ApiController]
 [Route("version")]

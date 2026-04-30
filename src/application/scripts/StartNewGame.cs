@@ -2,7 +2,6 @@ using GalaxyFootball.Application.Factories;
 using GalaxyFootball.Infrastructure.Database;
 using Microsoft.Extensions.Logging;
 using GalaxyFootball.Domain.Entities;
-using GalaxyFootball.Infrastructure.Git;
 
 namespace GalaxyFootball.Application.Scripts
 {
@@ -282,7 +281,7 @@ namespace GalaxyFootball.Application.Scripts
             {
                 game.NumberOfTeamsInLeague = 12; // Set the desired number of teams per league
                 game.DaysBetweenGames = 1; // Set the desired number of days between games
-                game.GameVersion = VersionInfo.GetVersion(); // Set the desired game version
+                //game.GameVersion = VersionInfo.GetVersion(); // Set the desired game version
                 m_db.SaveChanges();
             }
         }

@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\infrastructure\Database.Layer\Database.Layer.csproj" />
-    <ProjectReference Include="..\infrastructure\Git.Library\Git.Library.csproj" />
     <ProjectReference Include="..\domain\domain.csproj" />
   </ItemGroup>
 

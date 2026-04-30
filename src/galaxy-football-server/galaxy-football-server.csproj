@@ -10,10 +10,10 @@
     <!-- Add build time and version as assembly attributes -->
     <PropertyGroup>
       <BuildDateTime>$([System.DateTime]::Now.ToString("yyyy-MM-ddTHH:mm:ss"))</BuildDateTime>
-      <Version>0.0.6</Version>
-      <AssemblyVersion>0.0.6.0</AssemblyVersion>
-      <FileVersion>0.0.6.0</FileVersion>
-      <InformationalVersion>0.0.6</InformationalVersion>
+      <Version>0.0.7</Version>
+      <AssemblyVersion>0.0.7.0</AssemblyVersion>
+      <FileVersion>0.0.7.0</FileVersion>
+      <InformationalVersion>0.0.7</InformationalVersion>
     </PropertyGroup>
 
   <ItemGroup>
@@ -37,7 +37,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\infrastructure\Cloudflare.Library\Cloudflare.Library.csproj" />
-    <ProjectReference Include="..\infrastructure\Git.Library\Git.Library.csproj" />
     <ProjectReference Include="..\infrastructure\Database.Layer\Database.Layer.csproj" />
     <ProjectReference Include="..\domain\domain.csproj" />
     <ProjectReference Include="..\application\application.csproj" />

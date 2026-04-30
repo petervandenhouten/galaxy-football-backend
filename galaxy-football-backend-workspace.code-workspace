@@ -10,9 +10,6 @@
 			"path": "src/infrastructure/Cloudflare.Library"
 		},
 		{
-			"path": "src/infrastructure/Git.Library"
-		},
-		{
 			"path": "src/domain"
 		},
 		{
