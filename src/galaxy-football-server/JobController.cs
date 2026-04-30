@@ -23,6 +23,7 @@ public class JobController : ControllerBase
         if (apiKey != m_configuration["GALAXY_FOOTBALL_API_KEY"])
             return Unauthorized();
 
+        m_logger.LogInformation("RunInternal called: code=200 (job started)");
         await m_jobService.RunIfNeeded();
         return Ok();
     }
