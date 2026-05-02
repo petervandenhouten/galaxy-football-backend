@@ -78,11 +78,9 @@ Log.Information("Using database connection string: {connectionString}", connecti
 // Register DbContext after verifying connection    
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString));
 
-
-// Define the current software database version
-const int CurrentDatabaseVersion = 4; // Increment this when your schema changes
-
 var app = builder.Build();
+
+var game_params = GameParameters.GetInfo();
 
 // On startup, check and reset database if needed
 using (var scope = app.Services.CreateScope())
@@ -90,14 +88,14 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     db.Database.Migrate();
     var game = db.Games.FirstOrDefault();
-    if (game != null && game.DatabaseVersion < CurrentDatabaseVersion)
+    if (game != null && game.DatabaseVersion < game_params.DatabaseVersion)
     {
         // Optionally, you can drop and recreate the database, or just migrate and update the version
         // db.Database.EnsureDeleted();
         // db.Database.Migrate();
-        game.DatabaseVersion = CurrentDatabaseVersion;
+        game.DatabaseVersion = game_params.DatabaseVersion;
         db.SaveChanges();
-        Log.Information($"Database upgraded to version {CurrentDatabaseVersion}.");
+        Log.Information($"Database upgraded to version {game_params.DatabaseVersion}.");
     }
     else if (game == null)
     {
@@ -109,10 +107,10 @@ using (var scope = app.Services.CreateScope())
             Year = 1,
             Day = 0,
             IsProcessing = false,
-            DatabaseVersion = CurrentDatabaseVersion
+            DatabaseVersion = game_params.DatabaseVersion
         });
         db.SaveChanges();
-        Log.Information($"Database seeded with initial game state version {CurrentDatabaseVersion}.");
+        Log.Information($"Database seeded with initial game state version {game_params.DatabaseVersion}.");
     }
 }
 

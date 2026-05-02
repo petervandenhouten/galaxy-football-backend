@@ -29,6 +29,8 @@ namespace GalaxyFootball.Domain.Entities
     /// </summary>
     public class LeagueLeagueResult
     {
+        // Todo this class is not needed???
+        
         public Guid LeagueId { get; set; }
         public Guid LeagueResultId { get; set; }
     }

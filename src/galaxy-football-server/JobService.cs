@@ -6,6 +6,10 @@ public static class AdvisoryLockConstants
     public const int JobLockKey = 12345;
 }
 
+// For admin endpoints, they should bypass the IsProcessing check and locking, 
+// allowing a forced run even if a job is already running or stuck. 
+//It should log this override clearly.
+
 public class JobService
 {
     private readonly ApplicationDbContext m_db;
@@ -42,7 +46,7 @@ public class JobService
 
         try
         {
-            await RunJob();
+            await RunDailyJob();
             m_logger.LogInformation("Daily job executed successfully");
         }
         finally
@@ -51,36 +55,43 @@ public class JobService
             game.IsProcessing = false;
             await m_db.SaveChangesAsync();
             await transaction.CommitAsync();
+
+            // Note: The SaveChangesAsync at the end of RunIfNeeded is only for the
+            // IsProcessing flag and transaction commit, not for the business logic.
+            // So, always save changes inside RunDailyJob when you modify the database.
         }
     }
 
+    // Admin task to force run the daily job, bypassing locks and checks
     public async Task ForceRun()
     {
-        m_logger.LogInformation("Force running daily job");
+        m_logger.LogInformation("Forcing running daily job by Administrator.");
 
-        await RunJob();
-
-        //var task = await m_db.SystemTasks.FindAsync("daily_job");
-        //task.LastRun = DateTime.UtcNow;
-
-        // await m_db.SaveChangesAsync();
+        try
+        {
+            await RunDailyJob();
+            m_logger.LogInformation("Daily job executed successfully");
+        }
+        catch (Exception ex)
+        {
+            m_logger.LogError(ex, "Error while forcing daily job. Message: {Message}", ex.Message);
+            throw; // rethrow to let the caller handle it (e.g., return 500)
+        }
     }
 
-    private /* async */ Task RunJob()
+    private async Task RunDailyJob()
     {
         // 🔥 YOUR ACTUAL BATCH LOGIC HERE
-        m_logger.LogInformation("Running batch logic...");
+        m_logger.LogInformation("Running batch logic for daily job...");
 
-        // Example:
-        // - reset daily rewards
-        // - cleanup expired data
-        // - recalculate leaderboard
-        return Task.CompletedTask;
+        await m_scriptRunner.RunScriptByName("DailyTasks");
+        await m_scriptRunner.RunScriptByName("CleanDatabase");
     }
 
+    // Admin task to force start a new game/season, bypassing locks and checks
     public async Task ForceStartNewGame()
     {
-        m_logger.LogInformation("Force starting new game");
+        m_logger.LogInformation("Force starting new game by Administrator.");
         await m_scriptRunner.RunScriptByName("StartNewGame");
     }
 }

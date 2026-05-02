@@ -33,5 +33,57 @@ namespace GalaxyFootball.Application.Scripts
                 await script.Run();
             }
         }
+
+        /// <summary>
+        /// Runs a script by its class name (string), passing the current db and logger.
+        /// </summary>
+        /// <param name="scriptName">The class name of the script to run (e.g., "StartNewGame").</param>
+        public async Task RunScriptByName(string scriptName)
+        {
+            var ns = typeof(BaseScript).Namespace;
+            var type = Type.GetType($"{ns}.{scriptName}");
+            if (type == null)
+                throw new InvalidOperationException($"Script type '{scriptName}' not found in namespace '{ns}'.");
+            if (!typeof(BaseScript).IsAssignableFrom(type))
+                throw new InvalidOperationException($"Type '{scriptName}' does not inherit from BaseScript.");
+            var scriptObj = Activator.CreateInstance(type, m_db, m_loggerFactory);
+            if (scriptObj is not BaseScript script)
+                throw new InvalidOperationException($"Could not create instance of {scriptName}.");
+            if (script.CanRun())
+            {
+                await script.Run();
+            }
+        }
+
     }
 }
+
+/* TEMPLATE BEGIN
+
+using GalaxyFootball.Infrastructure.Database;
+using Microsoft.Extensions.Logging;
+
+namespace GalaxyFootball.Application.Scripts
+{
+    public class <SCRIPTNAME> : BaseScript
+    {
+        private readonly ILogger<<SCRIPTNAME>> m_logger;
+        public <SCRIPTNAME>(ApplicationDbContext db, ILoggerFactory loggerFactory)
+            : base(db, loggerFactory)
+        {
+            m_logger = loggerFactory.CreateLogger<<SCRIPTNAME>>();
+        }
+
+        public override bool CanRun()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task Run()
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
+TEMPLATE END */

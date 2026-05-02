@@ -79,6 +79,8 @@ namespace GalaxyFootball.Application.Scripts
                 // create the desired number of teams
                 for ( int t=0 ; t<teams_per_league; t++)
                 {
+                    int competition_indexfor_team = t+1;
+
                     // assign players to first clubs in highest leagues created
                     if (players_assigned_to_club < m_db.Users.Count())
                     {
@@ -94,14 +96,14 @@ namespace GalaxyFootball.Application.Scripts
                             m_logger.LogWarning("Player with empty ID found for user {UserId}. ", user.Id);
                             throw new Exception("Player with empty ID found. Cannot start a new game without valid players.");
                         }
-                        create_club_and_team(player.PlayerId, league.Id);
+                        create_club_and_team(player.PlayerId, league.Id, competition_indexfor_team);
                         players_assigned_to_club++;
                     }
                     else
                     {
                         // create an autocoached team for remaining teams without players
                         var coach  = AutoCoachFactory.CreateAutoCoach();
-                        create_club_and_team(coach.Id, league.Id);
+                        create_club_and_team(coach.Id, league.Id, competition_indexfor_team);
                     }
                 }
                 
@@ -113,7 +115,7 @@ namespace GalaxyFootball.Application.Scripts
             await RunScript<StartNewSeason>();
         }
 
-        private void create_club_and_team(Guid player_coach_Id, Guid leagueId)
+        private void create_club_and_team(Guid player_coach_Id, Guid leagueId, int team_index)
         {
             var club   = ClubFactory.CreateClub(); 
             while( m_db.Clubs.Any(c => c.Name == club.Name) ) // ensure unique club name
@@ -128,7 +130,7 @@ namespace GalaxyFootball.Application.Scripts
             create_robots_for_team(team.Id, 16);
 
             link_player_to_club_team        (player_coach_Id, club.Id, team.Id);
-            link_team_to_league             (team.Id, leagueId);    
+            link_team_to_league             (team.Id, leagueId, team_index);    
             link_results_of_team_to_league  (leagueId, team.Id);
         }
 
@@ -145,6 +147,7 @@ namespace GalaxyFootball.Application.Scripts
                 m_db.RobotMotors.Add(motor);
                 m_db.Robots.Add(robot);
             }
+            m_db.SaveChanges();
         }
         public override bool CanRun()
         {
@@ -172,16 +175,19 @@ namespace GalaxyFootball.Application.Scripts
                 TeamId = teamId
             };
             m_db.PlayerClubTeams.Add(player_club_team);
+            m_db.SaveChanges();
         }
-        private void link_team_to_league(Guid teamId, Guid leagueId)
+        private void link_team_to_league(Guid teamId, Guid leagueId, int team_index)
         {
             // Create a new TeamCompetition entry to link the team to the league
             var team_competition = new TeamCompetition
             {
                 TeamId        = teamId,
-                CompetitionId = leagueId
+                CompetitionId = leagueId,
+                TeamIndex     = team_index
             };
             m_db.TeamCompetitions.Add(team_competition);
+            m_db.SaveChanges();
         }
 
         private void delete_all_leagues()
@@ -193,6 +199,7 @@ namespace GalaxyFootball.Application.Scripts
             m_db.Leagues.RemoveRange(all_leagues);
             m_db.TeamCompetitions.RemoveRange(all_leagues_entries);
             m_db.LeagueResults.RemoveRange(all_leagues_results);
+            m_db.SaveChanges();
         }
 
         private void delete_all_player_club_teams()
@@ -200,6 +207,7 @@ namespace GalaxyFootball.Application.Scripts
             // Delete all existing player-club-team relationships
             var all_player_club_teams = m_db.PlayerClubTeams.ToList();
             m_db.PlayerClubTeams.RemoveRange(all_player_club_teams);
+            m_db.SaveChanges();
         }
 
         private void delete_all_autocoaches()
@@ -207,6 +215,7 @@ namespace GalaxyFootball.Application.Scripts
             // Delete all existing autocoaches
             var all_autocoaches = m_db.AutoCoaches.ToList();
             m_db.AutoCoaches.RemoveRange(all_autocoaches);
+            m_db.SaveChanges();
         }
 
         private void link_results_of_team_to_league(Guid leagueId, Guid teamId)
@@ -234,18 +243,21 @@ namespace GalaxyFootball.Application.Scripts
                 MatchResults = string.Empty
             };
             m_db.LeagueResults.Add(league_results);
+            m_db.SaveChanges();
         }
 
         private void delete_users_without_id()
         {
             var users_without_id = m_db.Users.Where(u => u.Id == Guid.Empty).ToList();
             m_db.Users.RemoveRange(users_without_id);
+            m_db.SaveChanges();
         }
 
         private void delete_players_without_id()
         {
             var players_without_id = m_db.Players.Where(p => p.Id == Guid.Empty).ToList();
             m_db.Players.RemoveRange(players_without_id);
+            m_db.SaveChanges();
         }
         
         private void delete_all_clubs()
@@ -272,15 +284,18 @@ namespace GalaxyFootball.Application.Scripts
             m_db.ClubCupResults.RemoveRange(all_club_cup_results);
             m_db.SeasonCupResults.RemoveRange(all_season_cup_results);
             m_db.AutoCoachClubTeams.RemoveRange(all_autocoach_club_teams);
+            m_db.SaveChanges();
         }
 
+        // Store game parameters that could change because of a software update,
+        // but should remain fixed during a season.
         private void setup_game_parameters()
         {
+            var parameters = GameParameters.GetInfo();
             var game = m_db.Games.FirstOrDefault();
             if (game != null)
             {
-                game.NumberOfTeamsInLeague = 12; // Set the desired number of teams per league
-                game.DaysBetweenGames = 1; // Set the desired number of days between games
+                game.NumberOfTeamsInLeague = parameters.NumberOfTeamsInLeague;
                 //game.GameVersion = VersionInfo.GetVersion(); // Set the desired game version
                 m_db.SaveChanges();
             }
@@ -291,8 +306,8 @@ namespace GalaxyFootball.Application.Scripts
             var game = m_db.Games.FirstOrDefault();
             if (game != null)
             {
-                game.Year = 1; // Reset to the first year/season
-                game.Day = 0; // Reset to the first day
+                game.Year = 0; // Reset for the first year/season
+                game.Day = 0;  // Reset for the first day
                 game.CurrentLeagueRound = 0;
                 game.CurrentCupRound = 0;
                 m_db.SaveChanges();
@@ -312,6 +327,7 @@ namespace GalaxyFootball.Application.Scripts
             m_db.RobotBodies.RemoveRange(all_robot_bodies);
             m_db.RobotBatteries.RemoveRange(all_robot_batteries);
             m_db.RobotMotors.RemoveRange(all_robot_motors);
+            m_db.SaveChanges();
         }
     }
 }

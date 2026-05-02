@@ -22,11 +22,14 @@ namespace GalaxyFootball.Domain.Entities
 
     /// <summary>
     /// Associative entity linking a team to a competition.
+    /// There can be multiple TeamCompetition entries for one team, because the team
+    /// can participate in many competitions
     /// </summary>
     public class TeamCompetition
     {
         public Guid TeamId { get; set; }
         public Guid CompetitionId { get; set; }
+        public int TeamIndex { get; set; } // for references inside a competition, 1-based
     }
 
     /// <summary>

@@ -69,6 +69,32 @@ namespace Database.Layer.Migrations
                     b.ToTable("autocoach_club_teams", (string)null);
                 });
 
+            modelBuilder.Entity("GalaxyFootball.Domain.Entities.Calendar", b =>
+                {
+                    b.Property<int>("DayIndex")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("DayIndex"));
+
+                    b.Property<int?>("CompetitionId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("CompetitionRound")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DayType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ScriptToRun")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("DayIndex");
+
+                    b.ToTable("calender", (string)null);
+                });
+
             modelBuilder.Entity("GalaxyFootball.Domain.Entities.Club", b =>
                 {
                     b.Property<Guid>("Id")
@@ -250,9 +276,6 @@ namespace Database.Layer.Migrations
                     b.Property<int>("Day")
                         .HasColumnType("integer");
 
-                    b.Property<int>("DaysBetweenGames")
-                        .HasColumnType("integer");
-
                     b.Property<string>("GameVersion")
                         .IsRequired()
                         .HasColumnType("text");
@@ -265,12 +288,6 @@ namespace Database.Layer.Migrations
 
                     b.Property<bool>("IsProcessing")
                         .HasColumnType("boolean");
-
-                    b.Property<int>("MaxCupRounds")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("MaxLeagueRounds")
-                        .HasColumnType("integer");
 
                     b.Property<int>("NumberOfTeamsInLeague")
                         .HasColumnType("integer");

@@ -16,10 +16,7 @@ namespace GalaxyFootball.Domain.Entities
         public int Day { get; set; } // Current day index
 
         // Calendar and league system
-        public int DaysBetweenGames { get; set; } // Days in-between games
-        public int MaxLeagueRounds { get; set; }
         public int CurrentLeagueRound { get; set; }
-        public int MaxCupRounds { get; set; }
         public int CurrentCupRound { get; set; }
         public int NumberOfTeamsInLeague { get; set; }
 

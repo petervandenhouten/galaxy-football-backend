@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace GalaxyFootball.Domain.Entities
 {
     /// <summary>
@@ -117,4 +114,5 @@ namespace GalaxyFootball.Domain.Entities
         public Guid CupResultId { get; set; }
     }
 
+    // todo ClubHistoryEvents...???
 }

@@ -35,6 +35,30 @@ namespace GalaxyFootball.Domain.Entities
         // Unavailability
         public int MatchesBannedRemaining { get; set; }
         public int MatchesUnavailableRemaining { get; set; }
+
+        // Statistics
+        public Guid RobotSeasonStatistics { get; set; }
+        public Guid RobotCareerStatistics { get; set; }
+
+        // History
+        public Guid RobotHistory { get; set; }
+
+    }
+
+    /// <summary>
+    /// Robot Statitics, can be created and used per season or for entire career
+    /// </summary>
+    public class RobotStatistics
+    {
+        public Guid Id { get; set; }
+        public int GamePlayed { get; set; } = 0;
+        public int Goals { get; set; } = 0;
+        public int Fouls { get; set; } = 0;
+        public int Interceptions { get; set; } = 0;
+        public int Assists { get; set; } = 0;
+        public int YellowCards { get; set; } = 0;
+        public int RedCards { get; set; } = 0;
+
     }
 
     /// <summary>
