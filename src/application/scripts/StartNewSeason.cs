@@ -91,8 +91,9 @@ namespace GalaxyFootball.Application.Scripts
         private void schedule_matches_for_all_leagues()
         {
             var calendar = m_db.Calendar.ToList();
+            var leagues = m_db.Leagues.ToList(); // Materialize query to avoid nested database queries
 
-            foreach(var league in m_db.Leagues)
+            foreach(var league in leagues)
             {
                 var match_factory = new LeagueMatchFactory();
                 var matches = match_factory.create_matches_for_league(league.Id, calendar);
@@ -133,23 +134,24 @@ namespace GalaxyFootball.Application.Scripts
 
         private void reset_all_robots_statistics()
         {
-            foreach(var robot in m_db.Robots)
+            var robots = m_db.Robots.ToList(); // Materialize query to avoid nested database queries
+            foreach(var robot in robots)
             {
                 reset_robot_season_statistics(robot);
             }
-            m_db.SaveChanges();
+            m_db.SaveChanges(); // Save all changes once at the end
         }
 
         private void reset_robot_season_statistics(Robot robot)
         {
             if (robot is not null)
             {
-                var stats = m_db.RobotStatistics.FirstOrDefault( s => s.Id == robot.RobotSeasonStatistics );
+                var stats = m_db.RobotSeasonStatistics.FirstOrDefault( s => s.Id == robot.RobotSeasonStatistics );
                 if ( stats is not null )
                 {
                     RobotStatisticsUtility.Reset(stats);
                 }
-                m_db.SaveChanges();
+                // Don't call SaveChanges inside loop - batch at the end
             }
         }
         
@@ -160,7 +162,8 @@ namespace GalaxyFootball.Application.Scripts
             var old_league_to_results = m_db.LeagueLeagueResults.ToList();
             m_db.LeagueLeagueResults.RemoveRange(old_league_to_results);
 
-            foreach(var league in m_db.Leagues)
+            var leagues = m_db.Leagues.ToList(); // Materialize query to avoid nested database queries
+            foreach(var league in leagues)
             {
                 var team_entries = m_db.TeamCompetitions.Where( t => t.CompetitionId == league.Id).ToList();
 

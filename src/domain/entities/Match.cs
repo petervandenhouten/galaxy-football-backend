@@ -14,7 +14,7 @@ namespace GalaxyFootball.Domain.Entities
         public int ScoreHome { get; set; }
         public int ScoreAway { get; set; }
         public CalendarDayType CompetitionType { get; set; } // defined by from Calender, CUP/LEAGUE
-        public Guid CompetitionID { get; set; } // e.g. LeagueID
+        public Guid CompetitionId { get; set; } // e.g. LeagueID
         public int CompetitionRound { get; set; } // One-based index of round in a competition
         public Guid Stadium { get; set; }
         public Guid Weather { get; set; }

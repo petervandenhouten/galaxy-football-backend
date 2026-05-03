@@ -32,7 +32,7 @@ namespace GalaxyFootball.Application.Factories
                         ScoreHome = 0,
                         ScoreAway = 0,
                         CompetitionType = CalendarDayType.LeagueMatch,
-                        CompetitionID = league_id,
+                        CompetitionId = league_id,
                         CompetitionRound = round
                     };
 

@@ -18,7 +18,7 @@ public class GameParameters
             AfterSeasonDays         = 4,
             FriendlyMatches         = 3,
             NumberOfTeamsInLeague   = 8,
-            DatabaseVersion         = 6
+            DatabaseVersion         = 8
         };
     }
 }

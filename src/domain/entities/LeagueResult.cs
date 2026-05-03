@@ -11,6 +11,9 @@ namespace GalaxyFootball.Domain.Entities
         public Guid Id { get; set; }
         public Guid TeamId { get; set; }
         public Guid CompetitionId { get; set; } // League Id
+        public int Ranking { get; set; } = 0;
+        public int PreviousRanking { get; set; } = 0;
+        public int Points { get; set; } = 0;
 
         // Home stats
         public int HomePlayed { get; set; } = 0;

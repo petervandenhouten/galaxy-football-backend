@@ -46,9 +46,10 @@ namespace GalaxyFootball.Domain.Entities
     }
 
     /// <summary>
-    /// Robot Statitics, can be created and used per season or for entire career
+    /// Base class for robot statistics, can be used per season or for entire career.
+    /// Uses Table-Per-Type (TPT) inheritance to allow separate tables for season and career statistics.
     /// </summary>
-    public class RobotStatistics
+    public abstract class RobotStatistics
     {
         public Guid Id { get; set; }
         public int GamePlayed { get; set; } = 0;
@@ -58,7 +59,21 @@ namespace GalaxyFootball.Domain.Entities
         public int Assists { get; set; } = 0;
         public int YellowCards { get; set; } = 0;
         public int RedCards { get; set; } = 0;
+    }
 
+    /// <summary>
+    /// Robot statistics for a single season.
+    /// </summary>
+    public class RobotSeasonStatistics : RobotStatistics
+    {
+        public int Season { get; set; } = 0;
+    }
+
+    /// <summary>
+    /// Robot statistics accumulated throughout the robot's career.
+    /// </summary>
+    public class RobotCareerStatistics : RobotStatistics
+    {
     }
 
     /// <summary>

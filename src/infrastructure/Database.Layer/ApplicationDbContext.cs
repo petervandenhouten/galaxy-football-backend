@@ -26,7 +26,6 @@ namespace GalaxyFootball.Infrastructure.Database
         public DbSet<LeagueLeagueResult> LeagueLeagueResults => Set<LeagueLeagueResult>();
         public DbSet<Calendar> Calendar => Set<Calendar>();
         public DbSet<Match> Matches => Set<Match>();
-        public DbSet<RobotStatistics> RobotStatistics => Set<RobotStatistics>();
         public DbSet<ClubHistory> ClubHistory => Set<ClubHistory>();
         public DbSet<RobotHistory> RobotHistory => Set<RobotHistory>();
         public DbSet<AutoCoachClubTeam> AutoCoachClubTeams => Set<AutoCoachClubTeam>();
@@ -40,8 +39,8 @@ namespace GalaxyFootball.Infrastructure.Database
         public DbSet<UserPlayer> UserPlayers => Set<UserPlayer>();
         public DbSet<PlayerClubTeam> PlayerClubTeams => Set<PlayerClubTeam>();
         public DbSet<WeatherConditions> WeatherConditions => Set<WeatherConditions>();
-        public DbSet<RobotStatistics> RobotSeasonStatistics => Set<RobotStatistics>();
-        public DbSet<RobotStatistics> RobotCareerStatistics => Set<RobotStatistics>();
+        public DbSet<RobotSeasonStatistics> RobotSeasonStatistics => Set<RobotSeasonStatistics>();
+        public DbSet<RobotCareerStatistics> RobotCareerStatistics => Set<RobotCareerStatistics>();
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -157,6 +156,20 @@ namespace GalaxyFootball.Infrastructure.Database
                 entity.Property(p => p.LastName).IsRequired();
             });
 
+            modelBuilder.Entity<Stadium>(entity =>
+            {
+                entity.ToTable("stadiums");
+                entity.HasKey(s => s.Id);
+                entity.Property(s => s.Name).IsRequired();
+                entity.Property(s => s.Capacity).IsRequired();
+                entity.Property(s => s.PitchType).IsRequired();
+                entity.Property(s => s.Planet).IsRequired();
+                entity.Property(s => s.WeatherTendencies).IsRequired();
+                entity.Property(s => s.Facilities).IsRequired();
+                entity.Property(s => s.TicketPrice).IsRequired();
+                entity.Property(s => s.MaintenanceCost).IsRequired();
+            });
+
             modelBuilder.Entity<Team>(entity =>
             {
                 entity.ToTable("teams");
@@ -177,6 +190,17 @@ namespace GalaxyFootball.Infrastructure.Database
                 entity.Property(r => r.BodyId).IsRequired();
                 entity.Property(r => r.MotorId).IsRequired();
                 entity.Property(r => r.BatteryId).IsRequired();
+                entity.Property(r => r.TeamId);
+                entity.Property(r => r.CurrentMentalShape).IsRequired();
+                entity.Property(r => r.CurrentCondition).IsRequired();
+                entity.Property(r => r.WearSpeed).IsRequired();
+                entity.Property(r => r.RecoveryRate).IsRequired();
+                entity.Property(r => r.Fatigue).IsRequired();
+                entity.Property(r => r.MatchesBannedRemaining).IsRequired();
+                entity.Property(r => r.MatchesUnavailableRemaining).IsRequired();
+                entity.Property(r => r.RobotSeasonStatistics).IsRequired();
+                entity.Property(r => r.RobotCareerStatistics).IsRequired();
+                entity.Property(r => r.RobotHistory).IsRequired();
             });
 
             modelBuilder.Entity<RobotBrain>(entity =>
@@ -259,29 +283,7 @@ namespace GalaxyFootball.Infrastructure.Database
                 entity.HasKey(e => new { e.ClubId, e.SponsorId });
             });
 
-            modelBuilder.Entity<TeamRobot>(entity =>
-            {
-                entity.ToTable("team_robots");
-                entity.HasKey(e => new { e.TeamId, e.RobotId });
-            });
-
-            modelBuilder.Entity<TeamCompetition>(entity =>
-            {
-                entity.ToTable("team_competitions");
-                entity.HasKey(e => new { e.TeamId, e.CompetitionId });
-            });
-
-            modelBuilder.Entity<TeamMatchLineup>(entity =>
-            {
-                entity.ToTable("team_match_lineups");
-                entity.HasKey(e => new { e.TeamId, e.MatchLineupId });
-            });
-
-            modelBuilder.Entity<TeamSavedLineup>(entity =>
-            {
-                entity.ToTable("team_saved_lineups");
-                entity.HasKey(e => new { e.TeamId, e.SavedLineupId });
-            });
+            //...existing code...
 
             modelBuilder.Entity<PlayerClubTeam>(entity =>
             {
@@ -294,12 +296,14 @@ namespace GalaxyFootball.Infrastructure.Database
                 entity.ToTable("matches");
                 entity.HasKey(lr => lr.Id);
                 entity.Property(lr => lr.Day).IsRequired();
+                entity.Property(lr => lr.TeamHomeIndex).IsRequired();
+                entity.Property(lr => lr.TeamAwayIndex).IsRequired();
                 entity.Property(lr => lr.TeamHomeId).IsRequired();
                 entity.Property(lr => lr.TeamAwayId).IsRequired();
                 entity.Property(lr => lr.ScoreHome).IsRequired();
                 entity.Property(lr => lr.ScoreAway).IsRequired();
                 entity.Property(lr => lr.CompetitionType).IsRequired();
-                entity.Property(lr => lr.CompetitionID).IsRequired();
+                entity.Property(lr => lr.CompetitionId).IsRequired();
                 entity.Property(lr => lr.CompetitionRound).IsRequired();
                 entity.Property(lr => lr.Stadium).IsRequired();
                 entity.Property(lr => lr.Weather).IsRequired();
@@ -320,6 +324,9 @@ namespace GalaxyFootball.Infrastructure.Database
                 entity.HasKey(lr => lr.Id);
                 entity.Property(lr => lr.TeamId).IsRequired();
                 entity.Property(lr => lr.CompetitionId).IsRequired();
+                entity.Property(lr => lr.Ranking).IsRequired();
+                entity.Property(lr => lr.PreviousRanking).IsRequired();
+                entity.Property(lr => lr.Points).IsRequired();
                 entity.Property(lr => lr.HomePlayed).IsRequired();
                 entity.Property(lr => lr.HomeWins).IsRequired();
                 entity.Property(lr => lr.HomeDraws).IsRequired();
@@ -357,29 +364,7 @@ namespace GalaxyFootball.Infrastructure.Database
                 entity.Property(scr => scr.Result).IsRequired();
             });
 
-            modelBuilder.Entity<PlayerClubTeam>(entity =>
-            {
-                entity.ToTable("player_club_teams");
-                entity.HasKey(e => new { e.PlayerId, e.ClubId, e.TeamId });
-            });
-
-            modelBuilder.Entity<ClubTeam>(entity =>
-            {
-                entity.ToTable("club_teams");
-                entity.HasKey(e => new { e.ClubId, e.TeamId });
-            });
-
-            modelBuilder.Entity<ClubStadium>(entity =>
-            {
-                entity.ToTable("club_stadiums");
-                entity.HasKey(e => new { e.ClubId, e.StadiumId });
-            });
-
-            modelBuilder.Entity<ClubSponsor>(entity =>
-            {
-                entity.ToTable("club_sponsors");
-                entity.HasKey(e => new { e.ClubId, e.SponsorId });
-            });
+            //...existing code...
 
             modelBuilder.Entity<ClubLeagueResult>(entity =>
             {
@@ -426,7 +411,6 @@ namespace GalaxyFootball.Infrastructure.Database
 
             modelBuilder.Entity<RobotStatistics>(entity =>
             {
-                entity.ToTable("robot_season_statistics");
                 entity.HasKey(rs => rs.Id);
                 entity.Property(rs => rs.GamePlayed).IsRequired();
                 entity.Property(rs => rs.Goals).IsRequired();
@@ -437,17 +421,16 @@ namespace GalaxyFootball.Infrastructure.Database
                 entity.Property(rs => rs.RedCards).IsRequired();
             });
 
-            modelBuilder.Entity<RobotStatistics>(entity =>
+            // Table-Per-Type inheritance for RobotStatistics
+            modelBuilder.Entity<RobotSeasonStatistics>(entity =>
+            {
+                entity.ToTable("robot_season_statistics");
+                entity.Property(rs => rs.Season).IsRequired();
+            });
+
+            modelBuilder.Entity<RobotCareerStatistics>(entity =>
             {
                 entity.ToTable("robot_career_statistics");
-                entity.HasKey(rs => rs.Id);
-                entity.Property(rs => rs.GamePlayed).IsRequired();
-                entity.Property(rs => rs.Goals).IsRequired();
-                entity.Property(rs => rs.Fouls).IsRequired();
-                entity.Property(rs => rs.Interceptions).IsRequired();
-                entity.Property(rs => rs.Assists).IsRequired();
-                entity.Property(rs => rs.YellowCards).IsRequired();
-                entity.Property(rs => rs.RedCards).IsRequired();
             });
 
         }

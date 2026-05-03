@@ -132,7 +132,7 @@ app.MapControllers();
 app.UseSerilogRequestLogging(); 
 
 var logger = app.Services.GetRequiredService<Microsoft.Extensions.Logging.ILogger<DatabaseConnection>>();
-if ( databaseConnection.TestConnectionAsync(connectionString, logger).Result )
+if ( databaseConnection.TestConnectionAsync(connectionString, logger).GetAwaiter().GetResult() )
 {
     Log.Information("Successfully connected to the database.");
 }

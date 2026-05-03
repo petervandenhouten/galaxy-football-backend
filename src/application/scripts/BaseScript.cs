@@ -36,14 +36,20 @@ namespace GalaxyFootball.Application.Scripts
 
         /// <summary>
         /// Runs a script by its class name (string), passing the current db and logger.
+        /// Returns false if the script doesn't exist (not yet implemented), true if run successfully or skipped.
         /// </summary>
         /// <param name="scriptName">The class name of the script to run (e.g., "StartNewGame").</param>
-        public async Task RunScriptByName(string scriptName)
+        /// <returns>True if script exists and was processed, false if script not found.</returns>
+        public async Task<bool> RunScriptByName(string scriptName)
         {
             var ns = typeof(BaseScript).Namespace;
             var type = Type.GetType($"{ns}.{scriptName}");
             if (type == null)
-                throw new InvalidOperationException($"Script type '{scriptName}' not found in namespace '{ns}'.");
+            {
+                var logger = m_loggerFactory.CreateLogger<BaseScript>();
+                logger.LogWarning("Script type '{ScriptName}' not found in namespace '{Namespace}'. This script may not be implemented yet.", scriptName, ns);
+                return false;
+            }
             if (!typeof(BaseScript).IsAssignableFrom(type))
                 throw new InvalidOperationException($"Type '{scriptName}' does not inherit from BaseScript.");
             var scriptObj = Activator.CreateInstance(type, m_db, m_loggerFactory);
@@ -53,6 +59,7 @@ namespace GalaxyFootball.Application.Scripts
             {
                 await script.Run();
             }
+            return true;
         }
 
     }
