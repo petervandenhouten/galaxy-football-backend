@@ -145,7 +145,7 @@ namespace GalaxyFootball.Application.Factories
             }
 
             m_logger?.LogInformation("Calendar created for year={0}. [Number of days={1}, LeagueRounds={2}, CupRounds={3}]",
-                                     game.Year, totalDays, numberOfLeagueRounds, numberOfCupRounds);
+                                     game.Year, calendar.Count, numberOfLeagueRounds, numberOfCupRounds);
 
             return calendar;
         }
