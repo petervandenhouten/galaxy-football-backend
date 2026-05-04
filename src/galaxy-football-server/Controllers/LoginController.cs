@@ -4,6 +4,9 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.ComponentModel.DataAnnotations;
+using GalaxyFootball.Infrastructure.Database;
+using Microsoft.AspNetCore.Identity;
+using GalaxyFootball.Domain.Entities;
 
 public class LoginModel
 {
@@ -18,10 +21,14 @@ public class LoginModel
 public class LoginController : ControllerBase
 {
     private readonly IConfiguration m_configuration;
+    private readonly ApplicationDbContext m_db;
+    private readonly IWebHostEnvironment m_env;
 
-    public LoginController(IConfiguration configuration)
+    public LoginController(IConfiguration configuration, ApplicationDbContext db, IWebHostEnvironment env)
     {
         m_configuration = configuration;
+        m_db = db;
+        m_env = env;
     }
 
     [HttpPost("login")]
@@ -30,8 +37,58 @@ public class LoginController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        // Validate user credentials here in database
-        if (model.Username != "admin" || model.Password != "bergkamp")
+        string role = "User"; // Default role
+
+        // Check for hardcoded admin first
+        if (model.Username == "admin" && model.Password == "bergkamp")
+        {
+            role = "Admin";
+            
+            var adminClaims = new[]
+            {
+                new Claim(ClaimTypes.Name, model.Username),
+                new Claim(ClaimTypes.Role, role)
+            };
+
+            var adminKey = m_configuration["GALAXY_FOOTBALL_JWT_KEY"];
+            Console.WriteLine($"LOGIN JWT KEY: {adminKey}");
+            var adminSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(adminKey ?? string.Empty));
+            var adminCreds = new SigningCredentials(adminSecurityKey, SecurityAlgorithms.HmacSha256);
+
+            var adminToken = new JwtSecurityToken(
+                issuer: "galaxy-football-backend",
+                audience: "galaxy-football-clients",
+                claims: adminClaims,
+                expires: DateTime.Now.AddHours(12),
+                signingCredentials: adminCreds);
+
+            var adminTokenString = new JwtSecurityTokenHandler().WriteToken(adminToken);
+            Console.WriteLine($"JWT TOKEN: {adminTokenString}");
+
+            return Ok(new { token = adminTokenString });
+        }
+
+        // Validate user credentials in database
+        var user = m_db.Users.FirstOrDefault(u => u.Username == model.Username);
+        if (user == null)
+        {
+            return Unauthorized(new { message = "Invalid username or password" });
+        }
+
+        // Verify password - use PasswordHasher in production, plain text comparison otherwise
+        bool passwordValid;
+        if (m_env.IsProduction())
+        {
+            var hasher = new PasswordHasher<User>();
+            var verificationResult = hasher.VerifyHashedPassword(user, user.Password, model.Password);
+            passwordValid = verificationResult == PasswordVerificationResult.Success;
+        }
+        else
+        {
+            passwordValid = user.Password == model.Password;
+        }
+
+        if (!passwordValid)
         {
             return Unauthorized(new { message = "Invalid username or password" });
         }
@@ -39,11 +96,8 @@ public class LoginController : ControllerBase
         var claims = new[]
         {
             new Claim(ClaimTypes.Name, model.Username),
-            new Claim(ClaimTypes.Role, "Admin") // Add role claim
+            new Claim(ClaimTypes.Role, role) // Add role claim
         };
-
-        // todo: check users table for the user/password combination and
-        //       return appropriate claims based on the user's roles/permissions
 
         var key = m_configuration["GALAXY_FOOTBALL_JWT_KEY"];
         Console.WriteLine($"LOGIN JWT KEY: {key}");
