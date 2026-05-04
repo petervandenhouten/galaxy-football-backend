@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using Serilog.Events;
 using GalaxyFootball.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
@@ -11,6 +12,9 @@ Log.Logger = new LoggerConfiguration()
         .AddJsonFile("appsettings.json")
         .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true)
         .Build())
+    .Filter.ByExcluding(logEvent =>
+        logEvent.Level < LogEventLevel.Warning &&
+        logEvent.RenderMessage().Contains("System.Collections.Generic", StringComparison.Ordinal))
     .Enrich.FromLogContext()
     .CreateLogger();
 
