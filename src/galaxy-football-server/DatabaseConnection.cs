@@ -18,7 +18,10 @@ public class DatabaseConnection
         var dbPassword = m_configuration["GALAXY_FOOTBALL_DB_PASSWORD"];
         var dbHost = m_configuration["GALAXY_FOOTBALL_DB_URL"];
         var dbPort = m_configuration["GALAXY_FOOTBALL_DB_PORT"] ?? "5432";
-
+        // Note: iwe we want to run the database on localhost, we probably have to disaple SSL_MODE with an environment variable.
+        // var dbSslMode = m_configuration["GALAXY_FOOTBALL_DB_SSL_MODE"] ?? "Require";
+        //  var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword};SSL Mode={dbSslMode};Trust Server Certificate=true;Application Name={appName}";
+      
         if (string.IsNullOrWhiteSpace(dbName))
             throw new InvalidOperationException("Environment variable GALAXY_FOOTBALL_DB_NAME is not set.");
         if (string.IsNullOrWhiteSpace(dbUser))
