@@ -22,7 +22,8 @@ namespace GalaxyFootball.Infrastructure.Cloudflare
             try
             {
                 var fileTransferUtility = new TransferUtility(_s3);
-                var destinationPath = Path.Combine(destination_folder, Path.GetFileName(filepath));
+                // Destination path in the bucket (e.g., "logs/logfile.txt"), always in linux format for Cloudflare
+                var destinationPath = $"{destination_folder}/{Path.GetFileName(filepath)}".Replace("\\", "/");
 
                 var uploadRequest = new TransferUtilityUploadRequest
                 {
