@@ -8,27 +8,45 @@ namespace GalaxyFootball.Application.Factories
     /// </summary>
     public class LeagueMatchFactory
     {
+        private readonly ILogger<LeagueMatchFactory>? m_logger;
+        public LeagueMatchFactory(ILoggerFactory? loggerFactory)
+        {
+            if ( loggerFactory is not null )
+            {
+                m_logger = loggerFactory.CreateLogger<LeagueMatchFactory>() ;
+            }
+        }
         public List<Match> create_matches_for_league(Guid league_id, IEnumerable<Calendar> calendar)
         {
-            var matches = new  List<Match>();
+            var matches = new List<Match>();
 
             var nr_league_rounds = calendar.Count(d => d.DayType == CalendarDayType.LeagueMatch);
             int nr_teams = (nr_league_rounds/2) + 1;
+            m_logger?.LogInformation("Creating matches for league {league_id} with {nr_teams} teams and {nr_league_rounds} league rounds", league_id, nr_teams, nr_league_rounds);
 
             if ( nr_teams != 8 )
             {
-                // not supported
+                m_logger?.LogWarning("LeagueMatchFactory: Unsupported number of teams {nr_teams} for league {league_id}, only 8 teams are supported. No matches created.", nr_teams, league_id);
                 return matches;
             }
 
             for (int round = 1; round <= nr_league_rounds; round++)
             {
+                // get days of league round
+                var calendar_day = calendar.FirstOrDefault(d => d.DayType == CalendarDayType.LeagueMatch && d.CompetitionRound == round);
+                if ( calendar_day is null)
+                {
+                    m_logger?.LogError("No calendar entry found for league round {round} in league {league_id}. Cannot create matches for this round.", round, league_id);
+                    continue;
+                }
+
                 // for every match in the round
                 for (int matchNr = 1; matchNr <= (nr_teams/2); matchNr++)
                 {
                     var match = new Match
                     {
                         Id = Guid.NewGuid(),
+                        Day = calendar_day.DayIndex,
                         ScoreHome = 0,
                         ScoreAway = 0,
                         CompetitionType = CalendarDayType.LeagueMatch,
@@ -39,6 +57,8 @@ namespace GalaxyFootball.Application.Factories
                     (int leagueIndex1, int leagueIndex2) = GetTeamIndexFromSchedule(nr_teams, round, matchNr);
                     match.TeamHomeIndex = leagueIndex1;
                     match.TeamAwayIndex = leagueIndex2;
+
+                    // m_logger?.LogDebug("Creating match {match_id} for league {league_id}, round {round}, match number {matchNr}: team home index {leagueIndex1} vs team away index {leagueIndex2}", match.Id, league_id, round, matchNr, leagueIndex1, leagueIndex2);
 
                     // Team Id, Stadium id must be filled in by class with access to database
                     // Weather id must be filled in a few days before the match

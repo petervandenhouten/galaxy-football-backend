@@ -10,7 +10,6 @@ namespace GalaxyFootball.Domain.Entities
         public CalendarDayType DayType { get; set; }
 
         // When Cup or League match
-        public int? CompetitionId { get; set; }
         public int? CompetitionRound { get; set; }
 
         // Optional script to run

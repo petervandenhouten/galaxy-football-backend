@@ -7,6 +7,7 @@ namespace GalaxyFootball.Domain.Entities
         /// </summary>
         public Guid Id { get; set; }
         public int Day {get; set;}
+        public int Year {get; set;}
         public int TeamHomeIndex { get; set; }
         public int TeamAwayIndex { get; set; }
         public Guid TeamHomeId { get; set; }

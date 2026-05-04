@@ -40,7 +40,7 @@ namespace Application.Tests
 
             var league_id = Guid.NewGuid();
 
-            var match_factory = new LeagueMatchFactory();
+            var match_factory = new LeagueMatchFactory(null);
             var matches = match_factory.create_matches_for_league(league_id, calendar);
 
             Assert.NotNull(matches);

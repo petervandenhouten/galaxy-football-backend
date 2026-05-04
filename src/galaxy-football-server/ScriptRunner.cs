@@ -74,11 +74,16 @@ public class ScriptRunner
     /// Runs a script by its class name, if found and can run.
     /// </summary>
     /// <param name="scriptClassName">The name of the script class to run.</param>
-    public async Task RunScriptByName(string scriptClassName)
+    public async Task<bool> RunScriptByName(string scriptClassName)
     {
         var script = CreateScriptByName(scriptClassName);
         if (script == null)
-            throw new InvalidOperationException($"Script class '{scriptClassName}' not found.");
+        {
+            var logger = m_loggerFactory.CreateLogger<ScriptRunner>();
+            logger.LogError("Script class '{ScriptName}' not found. Skipping execution.", scriptClassName);
+            return false;
+        }
         await RunScript(script);
+        return true;
     }
 }

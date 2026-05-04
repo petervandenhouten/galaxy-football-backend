@@ -1,5 +1,3 @@
-using System;
-
 namespace GalaxyFootball.Domain.Entities
 {
     /// <summary>

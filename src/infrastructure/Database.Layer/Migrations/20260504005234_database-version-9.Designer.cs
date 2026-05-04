@@ -3,6 +3,7 @@ using System;
 using GalaxyFootball.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Database.Layer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260504005234_database-version-9")]
+    partial class databaseversion9
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -76,6 +79,9 @@ namespace Database.Layer.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("DayIndex"));
+
+                    b.Property<int?>("CompetitionId")
+                        .HasColumnType("integer");
 
                     b.Property<int?>("CompetitionRound")
                         .HasColumnType("integer");
@@ -449,9 +455,6 @@ namespace Database.Layer.Migrations
                     b.Property<Guid>("Weather")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("Year")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.ToTable("matches", (string)null);
@@ -775,24 +778,6 @@ namespace Database.Layer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("season_league_results", (string)null);
-                });
-
-            modelBuilder.Entity("GalaxyFootball.Domain.Entities.Sponsor", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Budget")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("sponsors", (string)null);
                 });
 
             modelBuilder.Entity("GalaxyFootball.Domain.Entities.Stadium", b =>

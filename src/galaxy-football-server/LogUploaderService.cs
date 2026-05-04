@@ -72,6 +72,16 @@ public class LogUploaderService : BackgroundService
             return;
         }
 
+        var bucket_name = m_configuration["CLOUDFLARE:BUCKET_NAME"];
+        if ( bucket_name == "DISABLED")
+        {
+            return;
+        }
+        m_logger.LogInformation("CLOUDFLARE:BUCKET_NAME value: {bucket_name}", bucket_name);
+
+        if (string.IsNullOrEmpty(bucket_name))
+            throw new ArgumentException("CLOUDFLARE:BUCKET_NAME is missing from configuration.");
+
         // Copy the log file to a temp location to avoid file lock issues
         var tempUploadFile = Path.Combine(logsDir, $"log-{DateTime.Now:yyyy-MM-dd}.txt"); // Similar to rolling log file 
         try
@@ -83,11 +93,6 @@ public class LogUploaderService : BackgroundService
             m_logger.LogError(ex, "Failed to copy log file {logFileName} to temp location {tempUploadFile}", logFileName, tempUploadFile);
             return;
         }
-
-        var bucket_name = m_configuration["CLOUDFLARE:BUCKET_NAME"];
-        m_logger.LogInformation("CLOUDFLARE:BUCKET_NAME value: {bucket_name}", bucket_name);
-        if (string.IsNullOrEmpty(bucket_name))
-            throw new ArgumentException("CLOUDFLARE:BUCKET_NAME is missing from configuration.");
 
         m_logger.LogInformation("Uploading log file {logFileName} (copied to {tempUploadFile}) to CloudFlare S3 {bucket}",
                                 logFileName, tempUploadFile, bucket_name);

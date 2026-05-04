@@ -12,13 +12,13 @@ public class GameParameters
     {
         return new GameParameters
         {
-            Version                 = "0.0.1",
+            Version                 = "0.0.2",
             DaysBetweenMatches      = 2,
             PreSeasonDays           = 7,
             AfterSeasonDays         = 4,
             FriendlyMatches         = 3,
             NumberOfTeamsInLeague   = 8,
-            DatabaseVersion         = 8
+            DatabaseVersion         = 10
         };
     }
 }

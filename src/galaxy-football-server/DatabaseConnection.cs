@@ -28,7 +28,8 @@ public class DatabaseConnection
         if (string.IsNullOrWhiteSpace(dbHost))
             throw new InvalidOperationException("Environment variable GALAXY_FOOTBALL_DB_URL is not set.");
 
-        var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword};SSL Mode=Require;Trust Server Certificate=true";
+        var appName = "galaxy-football-server";
+        var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword};SSL Mode=Require;Trust Server Certificate=true;Application Name={appName}";
         return connectionString;
     }
 

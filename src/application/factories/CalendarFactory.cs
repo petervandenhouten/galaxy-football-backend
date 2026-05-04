@@ -47,7 +47,6 @@ namespace GalaxyFootball.Application.Factories
                 var entry = new Calendar 
                 { 
                     DayIndex = dayIndex,
-                    CompetitionId = 0,
                     CompetitionRound = 0,
                 };
 
@@ -69,7 +68,6 @@ namespace GalaxyFootball.Application.Factories
                 var entry = new Calendar
                 { 
                     DayIndex = dayIndex,
-                    CompetitionId    = 0,
                     CompetitionRound = 0,
                 };
 
@@ -125,7 +123,6 @@ namespace GalaxyFootball.Application.Factories
                     var breakEntry = new Calendar
                     {
                         DayIndex = dayIndex,
-                        CompetitionId = 0,
                         CompetitionRound = 0,
                         DayType = CalendarDayType.Idle
                     };
@@ -140,7 +137,6 @@ namespace GalaxyFootball.Application.Factories
                 var entry = new Calendar
                 {
                     DayIndex = dayIndex,
-                    CompetitionId = 0,
                     CompetitionRound = 0,
                     DayType = CalendarDayType.AfterSeason
                 };

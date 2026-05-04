@@ -31,7 +31,7 @@ namespace GalaxyFootball.Application.Scripts
             m_logger.LogInformation("Starting a new season...");
 
             delete_calendar();
-            delete_matches_from_database();
+            delete_matches_from_database_for_this_year();
             delete_matches_from_storage(); // delete engine files from cloudflare
 
             set_next_year_and_reset_day();
@@ -39,9 +39,16 @@ namespace GalaxyFootball.Application.Scripts
             var calendarFactory = new CalendarFactory(m_loggerFactory);            
             var param = GameParameters.GetInfo();
             var nr_of_clubs = m_db.Teams.Count();
-            var calendar = calendarFactory.CreateCalender(m_db.Games.First(),param,nr_of_clubs);
+            var game = m_db.Games.OrderBy(g => g.Id).FirstOrDefault();
+            if (game == null)
+            {
+                m_logger.LogError("No game found in database. Cannot start season.");
+                return Task.CompletedTask;
+            }
+            var calendar = calendarFactory.CreateCalender(game, param, nr_of_clubs);
 
             m_db.Calendar.AddRange(calendar);
+            m_db.SaveChanges(); // Save calendar before scheduling matches
 
             schedule_matches_for_all_leagues(); // uses calendar and leagues from database
             reset_league_results();
@@ -54,7 +61,7 @@ namespace GalaxyFootball.Application.Scripts
 
         public override bool CanRun()
         {
-            var game = m_db.Games.FirstOrDefault();
+            var game = m_db.Games.OrderBy(g => g.Id).FirstOrDefault();
             return game != null;
         }
 
@@ -68,7 +75,7 @@ namespace GalaxyFootball.Application.Scripts
 
         private void set_next_year_and_reset_day()
         {
-            var game = m_db.Games.FirstOrDefault();
+            var game = m_db.Games.OrderBy(g => g.Id).FirstOrDefault();
             if (game != null)
             {
                 game.Year += 1; // Move to the next year/season
@@ -78,9 +85,16 @@ namespace GalaxyFootball.Application.Scripts
             }
         }
 
-        void delete_matches_from_database()
+        void delete_matches_from_database_for_this_year()
         {
-            // todo not implemented yet
+            var game = m_db.Games.OrderBy(g => g.Id).FirstOrDefault();
+            if (game != null)
+            {
+                var matches = m_db.Matches.Where(m => m.Year == game.Year).ToList();
+                m_db.Matches.RemoveRange(matches);
+                m_db.SaveChanges();
+                m_logger.LogInformation("Matches cleared from database for the new season. [Year {Year}]", game.Year);
+            }
         }
 
         private void delete_matches_from_storage()
@@ -95,7 +109,7 @@ namespace GalaxyFootball.Application.Scripts
 
             foreach(var league in leagues)
             {
-                var match_factory = new LeagueMatchFactory();
+                var match_factory = new LeagueMatchFactory(m_loggerFactory);
                 var matches = match_factory.create_matches_for_league(league.Id, calendar);
 
                 // Fill in team and stadium guid
@@ -106,6 +120,8 @@ namespace GalaxyFootball.Application.Scripts
                     match.Stadium    = GetStadiumFromTeam(match.TeamHomeId);
                 }
 
+                m_logger.LogInformation("Scheduling {MatchCount} matches for league (Level {Level}:{Number} {LeagueId}).", matches.Count, league.Level, league.Number, league.Id);
+                
                 m_db.Matches.AddRange(matches);
             }
             m_db.SaveChanges();
@@ -159,8 +175,6 @@ namespace GalaxyFootball.Application.Scripts
         {
             var old_league_results = m_db.LeagueResults.ToList();
             m_db.LeagueResults.RemoveRange(old_league_results);
-            var old_league_to_results = m_db.LeagueLeagueResults.ToList();
-            m_db.LeagueLeagueResults.RemoveRange(old_league_to_results);
 
             var leagues = m_db.Leagues.ToList(); // Materialize query to avoid nested database queries
             foreach(var league in leagues)
@@ -177,14 +191,6 @@ namespace GalaxyFootball.Application.Scripts
                         // All attributes are reset by constructor
                     };
                     m_db.LeagueResults.Add(league_result);
-
-                    // todo: this table is not needed???
-                    var league_to_result_reference = new LeagueLeagueResult
-                    {
-                        LeagueId = league.Id,
-                        LeagueResultId = league_result.Id
-                    };
-                    m_db.LeagueLeagueResults.Add(league_to_result_reference);
                 }
             }     
             m_db.SaveChanges();       
