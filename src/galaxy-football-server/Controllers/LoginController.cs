@@ -76,17 +76,19 @@ public class LoginController : ControllerBase
         }
 
         // Verify password - use PasswordHasher in production, plain text comparison otherwise
-        bool passwordValid;
-        if (m_env.IsProduction())
-        {
-            var hasher = new PasswordHasher<User>();
-            var verificationResult = hasher.VerifyHashedPassword(user, user.Password, model.Password);
-            passwordValid = verificationResult == PasswordVerificationResult.Success;
-        }
-        else
-        {
-            passwordValid = user.Password == model.Password;
-        }
+        // bool passwordValid;
+        // if (m_env.IsProduction())
+        // {
+        //     var hasher = new PasswordHasher<User>();
+        //     var verificationResult = hasher.VerifyHashedPassword(user, user.Password, model.Password);
+        //     passwordValid = verificationResult == PasswordVerificationResult.Success;
+        // }
+        // else
+        // {
+        //     passwordValid = user.Password == model.Password;
+        // }
+
+        bool passwordValid = user.Password == model.Password;
 
         if (!passwordValid)
         {

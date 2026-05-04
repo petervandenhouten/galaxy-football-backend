@@ -64,8 +64,9 @@ namespace GalaxyFootball.Server
                 Username = request.Username,
                 CreatedAt = DateTime.UtcNow
             };
-            var hasher = new PasswordHasher<User>();
-            user.Password = m_env.IsProduction() ? hasher.HashPassword(user, request.Password) : request.Password;
+            //var hasher = new PasswordHasher<User>();
+            //user.Password = m_env.IsProduction() ? hasher.HashPassword(user, request.Password) : request.Password;
+            user.Password = request.Password;
 
             var player = new Player
             {
