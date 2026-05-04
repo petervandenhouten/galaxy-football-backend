@@ -77,7 +77,6 @@ public class LogUploaderService : BackgroundService
         {
             return;
         }
-        m_logger.LogInformation("CLOUDFLARE:BUCKET_NAME value: {bucket_name}", bucket_name);
 
         if (string.IsNullOrEmpty(bucket_name))
             throw new ArgumentException("CLOUDFLARE:BUCKET_NAME is missing from configuration.");
