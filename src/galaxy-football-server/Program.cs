@@ -99,7 +99,7 @@ using (var scope = app.Services.CreateScope())
         // db.Database.Migrate();
         game.DatabaseVersion = game_params.DatabaseVersion;
         db.SaveChanges();
-        Log.Information($"Database upgraded to version {game_params.DatabaseVersion}.");
+        Log.Information("Database upgraded to version {DatabaseVersion}.", game_params.DatabaseVersion);
     }
     else if (game == null)
     {
@@ -114,7 +114,7 @@ using (var scope = app.Services.CreateScope())
             DatabaseVersion = game_params.DatabaseVersion
         });
         db.SaveChanges();
-        Log.Information($"Database seeded with initial game state version {game_params.DatabaseVersion}.");
+        Log.Information("Database seeded with initial game state version {DatabaseVersion}.", game_params.DatabaseVersion);
     }
 }
 
