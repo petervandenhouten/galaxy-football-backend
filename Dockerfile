@@ -7,8 +7,10 @@ COPY src/galaxy-football-server/galaxy-football-server.csproj src/galaxy-footbal
 COPY src/infrastructure/Cloudflare.Library/Cloudflare.Library.csproj src/infrastructure/Cloudflare.Library/
 COPY src/domain/domain.csproj src/domain/
 COPY src/infrastructure/Database.Layer/Database.Layer.csproj src/infrastructure/Database.Layer/
+COPY src/infrastructure/Git.Library/Git.Library.csproj src/infrastructure/Git.Library/
 COPY src/application/application.csproj src/application/
 COPY test/unit-tests/Application.Tests/Application.Tests.csproj test/unit-tests/Application.Tests/
+
 
 # Restore dependencies as distinct layers
 RUN dotnet restore galaxy-football-backend.sln
