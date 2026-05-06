@@ -1,19 +1,20 @@
-﻿public class BuildInfo
+﻿// todo: can be removed
+
+public class BuildInfo
 {
-    public static string GetGitBranchName()
+    public static string GetAspNetCoreEnvironment()
     {
-        // Retrieve branch name from environment variable GIT_BRANCH
-        return Environment.GetEnvironmentVariable("GIT_BRANCH") ?? "unknown";
+        return Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "unknown";
     }
 
     public static bool IsProductionBuild()
     {
-        return GetGitBranchName().Equals("main", StringComparison.OrdinalIgnoreCase);
+        return !IsDevelopmentBuild();
     }
 
     public static bool IsDevelopmentBuild()
     {
-        return !IsProductionBuild();
+        return GetAspNetCoreEnvironment().Contains("dev", StringComparison.OrdinalIgnoreCase);
     }
 
 }
