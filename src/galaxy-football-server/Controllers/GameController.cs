@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore;
 using GalaxyFootball.Infrastructure.Database;
 
 [ApiController]
-[Route("api")]
-public class DatabaseController : ControllerBase
+[Route("api/[controller]")]
+public class GameController : ControllerBase
 {
-    private readonly ILogger<DatabaseController> m_logger;
+    private readonly ILogger<GameController> m_logger;
     private readonly ApplicationDbContext m_db;
 
-    public DatabaseController(ApplicationDbContext db, ILogger<DatabaseController> logger)
+    public GameController(ApplicationDbContext db, ILogger<GameController> logger)
     {
         m_db = db;
         m_logger = logger;
@@ -27,4 +27,17 @@ public class DatabaseController : ControllerBase
         }
         return Ok(new { isLocked = game.IsLocked, isProcessing = game.IsProcessing, isPaused = game.IsPaused });
     }
+
+    [HttpGet("day-info")]
+    public async Task<IActionResult> GetDayInfo()
+    {
+        // Assumes only one Game row exists (singleton pattern)
+        var game = await m_db.Games.FirstOrDefaultAsync();
+        if (game == null)
+        {
+            return NotFound(new { error = "No game state found." });
+        }
+        return Ok(new { day = game.Day, year= game.Year+2049 });
+    }
+
 }
