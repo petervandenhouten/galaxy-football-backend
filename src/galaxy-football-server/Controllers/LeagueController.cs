@@ -14,6 +14,14 @@ public class LeagueController : ControllerBase
         m_db = db;
     }
 
+    [HttpGet("standings")]
+    [ProducesResponseType(typeof(LeagueStandingsResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public Task<IActionResult> GetStandingsDefault([FromQuery] int level = 1, [FromQuery] int number = 1)
+    {
+        return GetStandings(level, number);
+    }
+
     [HttpGet("level/{level:int}/number/{number:int}/standings")]
     [ProducesResponseType(typeof(LeagueStandingsResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
