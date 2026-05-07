@@ -172,15 +172,37 @@ For a container platform such as Azure Container Apps, AWS ECS, Fly.io, Railway,
 
 1. Build and push the image from the included Dockerfile.
 2. Inject the required environment variables as secrets or configuration.
-3. Expose container port `8080`.
-4. Ensure the container can reach PostgreSQL.
-5. Mount or provide a writable temp directory and set `TMPDIR`.
-6. Allow the application to run database migrations on startup.
+3. Expose container port `8080` over internal HTTP unless your platform requires in-container TLS.
+4. If your platform terminates TLS at the edge, make sure it forwards `X-Forwarded-Proto` so ASP.NET sees the original HTTPS scheme.
+5. Ensure the container can reach PostgreSQL.
+6. Mount or provide a writable temp directory and set `TMPDIR`.
+7. Allow the application to run database migrations on startup.
+
+### Render deployment
+
+For Render, keep the container on internal HTTP and let Render terminate TLS:
+
+1. Do not set Kestrel certificate environment variables in Render.
+2. Do not mount local certificate files.
+3. Let Render provide `PORT` and forward requests to `http://0.0.0.0:$PORT` inside the container.
+4. Use the public Render service URL over HTTPS from clients.
+
+Example local curl against a Render-style local run:
+
+```powershell
+curl.exe "http://localhost:8080/api/leagues/level/1/number/1/standings" -H "Accept: application/json"
+```
+
+Example local curl against the built-in HTTPS development profile:
+
+```powershell
+curl.exe -k "https://localhost:7268/api/leagues/level/1/number/1/standings" -H "Accept: application/json"
+```
 
 ## Operational Notes
 
 - The API enables CORS with `AllowAnyOrigin`, `AllowAnyHeader`, and `AllowAnyMethod`. Tighten this for production.
-- `UseHttpsRedirection()` is enabled, so deployments should be aware of proxy and forwarded-header behavior.
+- `UseHttpsRedirection()` is enabled and forwarded headers are processed before redirects so reverse-proxy deployments such as Render preserve the original HTTPS scheme.
 - The current login endpoint contains placeholder credentials in code. Review and replace that flow before exposing the service publicly.
 - Log uploads target Cloudflare R2 using an S3-compatible client.
 

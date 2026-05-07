@@ -199,14 +199,17 @@ internal static class GdScriptGenerator
 
         foreach (var property in definition.Properties)
         {
-            builder.AppendLine($"    var {property.ScriptPropertyName} = {property.Type.DefaultValueLiteral}");
+            builder.AppendLine($"    var {property.ScriptPropertyName}: {property.Type.GdTypeName} = {property.Type.DefaultValueLiteral}");
         }
     }
 
     private static void AppendParserFunction(StringBuilder builder, DtoDefinition definition)
     {
         builder.AppendLine($"static func {definition.ParserFunctionName}(data: Variant) -> {definition.Name}:");
-        builder.AppendLine("    if data == null or not (data is Dictionary):");
+        builder.AppendLine("    if data == null:");
+        builder.AppendLine("        return null");
+        builder.AppendLine("    if not (data is Dictionary):");
+        builder.AppendLine($"        push_warning(\"Expected Dictionary for {definition.Name}, got %s.\" % type_string(typeof(data)))");
         builder.AppendLine("        return null");
         builder.AppendLine();
         builder.AppendLine("    var source: Dictionary = data");
@@ -214,7 +217,7 @@ internal static class GdScriptGenerator
 
         foreach (var property in definition.Properties)
         {
-            AppendPropertyAssignment(builder, property, 1, $"source.get(\"{property.JsonPropertyName}\")", $"dto.{property.ScriptPropertyName}");
+            AppendPropertyAssignment(builder, definition, property, 1, $"source.get(\"{property.JsonPropertyName}\")", $"dto.{property.ScriptPropertyName}");
         }
 
         builder.AppendLine("    return dto");
@@ -223,13 +226,23 @@ internal static class GdScriptGenerator
     private static void AppendJsonParserFunction(StringBuilder builder, DtoDefinition definition)
     {
         builder.AppendLine($"static func {definition.JsonParserFunctionName}(json_text: String) -> {definition.Name}:");
-        builder.AppendLine("    var parsed = JSON.parse_string(json_text)");
-        builder.AppendLine($"    return {definition.ParserFunctionName}(parsed)");
+        builder.AppendLine("    var json := JSON.new()");
+        builder.AppendLine("    var parse_result = json.parse(json_text)");
+        builder.AppendLine("    if parse_result != OK:");
+        builder.AppendLine($"        push_error(\"Failed to parse JSON for {definition.Name}: %s at line %d.\" % [json.get_error_message(), json.get_error_line()])");
+        builder.AppendLine("        return null");
+        builder.AppendLine($"    return {definition.ParserFunctionName}(json.data)");
     }
 
-    private static void AppendPropertyAssignment(StringBuilder builder, DtoProperty property, int indentLevel, string sourceExpression, string targetExpression)
+    private static void AppendPropertyAssignment(StringBuilder builder, DtoDefinition definition, DtoProperty property, int indentLevel, string sourceExpression, string targetExpression)
     {
         var indent = new string(' ', indentLevel * 4);
+
+        if (!property.Type.IsNullable)
+        {
+            builder.AppendLine($"{indent}if not source.has(\"{property.JsonPropertyName}\") or source.get(\"{property.JsonPropertyName}\") == null:");
+            builder.AppendLine($"{indent}    push_warning(\"Missing required field '{property.JsonPropertyName}' while parsing {definition.Name}.\")");
+        }
 
         switch (property.Type)
         {
@@ -244,14 +257,26 @@ internal static class GdScriptGenerator
                 builder.AppendLine($"{indent}var {property.ScriptPropertyName}_values = {sourceExpression}");
                 builder.AppendLine($"{indent}if {property.ScriptPropertyName}_values is Array:");
                 builder.AppendLine($"{indent}    for item in {property.ScriptPropertyName}_values:");
-                var itemExpression = listDescriptor.ElementType switch
+                if (listDescriptor.ElementType is ObjectTypeDescriptor elementObject)
                 {
-                    PrimitiveTypeDescriptor elementPrimitive => elementPrimitive.ConversionExpression("item"),
-                    ObjectTypeDescriptor elementObject => $"{elementObject.ParserFunctionName}(item)",
-                    ListTypeDescriptor => "item",
-                    _ => "item"
-                };
-                builder.AppendLine($"{indent}        {targetExpression}.append({itemExpression})");
+                    builder.AppendLine($"{indent}        var parsed_item := {elementObject.ParserFunctionName}(item)");
+                    builder.AppendLine($"{indent}        if parsed_item != null:");
+                    builder.AppendLine($"{indent}            {targetExpression}.append(parsed_item)");
+                    builder.AppendLine($"{indent}        else:");
+                    builder.AppendLine($"{indent}            push_warning(\"Skipping invalid item in '{property.JsonPropertyName}' while parsing {definition.Name}.\")");
+                }
+                else
+                {
+                    var itemExpression = listDescriptor.ElementType switch
+                    {
+                        PrimitiveTypeDescriptor elementPrimitive => elementPrimitive.ConversionExpression("item"),
+                        ListTypeDescriptor => "item",
+                        _ => "item"
+                    };
+                    builder.AppendLine($"{indent}        {targetExpression}.append({itemExpression})");
+                }
+                builder.AppendLine($"{indent}elif {property.ScriptPropertyName}_values != null:");
+                builder.AppendLine($"{indent}    push_warning(\"Expected Array for '{property.JsonPropertyName}', got %s.\" % type_string(typeof({property.ScriptPropertyName}_values)))");
                 break;
             default:
                 builder.AppendLine($"{indent}{targetExpression} = {sourceExpression}");
@@ -261,42 +286,42 @@ internal static class GdScriptGenerator
 
     private static void AppendHelperFunctions(StringBuilder builder)
     {
-        builder.AppendLine("static func _to_string(value: Variant) -> String:");
+        builder.AppendLine("static func dto_to_string(value: Variant) -> String:");
         builder.AppendLine("    if value == null:");
         builder.AppendLine("        return \"\"");
         builder.AppendLine("    return str(value)");
         builder.AppendLine();
-        builder.AppendLine("static func _to_nullable_string(value: Variant) -> Variant:");
+        builder.AppendLine("static func dto_to_nullable_string(value: Variant) -> Variant:");
         builder.AppendLine("    if value == null:");
         builder.AppendLine("        return null");
         builder.AppendLine("    return str(value)");
         builder.AppendLine();
-        builder.AppendLine("static func _to_int(value: Variant) -> int:");
+        builder.AppendLine("static func dto_to_int(value: Variant) -> int:");
         builder.AppendLine("    if value == null:");
         builder.AppendLine("        return 0");
         builder.AppendLine("    return int(value)");
         builder.AppendLine();
-        builder.AppendLine("static func _to_nullable_int(value: Variant) -> Variant:");
+        builder.AppendLine("static func dto_to_nullable_int(value: Variant) -> Variant:");
         builder.AppendLine("    if value == null:");
         builder.AppendLine("        return null");
         builder.AppendLine("    return int(value)");
         builder.AppendLine();
-        builder.AppendLine("static func _to_float(value: Variant) -> float:");
+        builder.AppendLine("static func dto_to_float(value: Variant) -> float:");
         builder.AppendLine("    if value == null:");
         builder.AppendLine("        return 0.0");
         builder.AppendLine("    return float(value)");
         builder.AppendLine();
-        builder.AppendLine("static func _to_nullable_float(value: Variant) -> Variant:");
+        builder.AppendLine("static func dto_to_nullable_float(value: Variant) -> Variant:");
         builder.AppendLine("    if value == null:");
         builder.AppendLine("        return null");
         builder.AppendLine("    return float(value)");
         builder.AppendLine();
-        builder.AppendLine("static func _to_bool(value: Variant) -> bool:");
+        builder.AppendLine("static func dto_to_bool(value: Variant) -> bool:");
         builder.AppendLine("    if value == null:");
         builder.AppendLine("        return false");
         builder.AppendLine("    return bool(value)");
         builder.AppendLine();
-        builder.AppendLine("static func _to_nullable_bool(value: Variant) -> Variant:");
+        builder.AppendLine("static func dto_to_nullable_bool(value: Variant) -> Variant:");
         builder.AppendLine("    if value == null:");
         builder.AppendLine("        return null");
         builder.AppendLine("    return bool(value)");
@@ -318,6 +343,7 @@ internal sealed record DtoProperty(string Name, TypeDescriptor Type, string Sour
 internal abstract record TypeDescriptor(bool IsNullable)
 {
     public abstract string DefaultValueLiteral { get; }
+    public abstract string GdTypeName { get; }
 }
 
 internal sealed record PrimitiveTypeDescriptor(string PrimitiveName, bool IsNullable) : TypeDescriptor(IsNullable)
@@ -332,19 +358,29 @@ internal sealed record PrimitiveTypeDescriptor(string PrimitiveName, bool IsNull
         _ => "null"
     };
 
+    public override string GdTypeName => (PrimitiveName, IsNullable) switch
+    {
+        (_, true) => "Variant",
+        ("string", false) => "String",
+        ("int", false) => "int",
+        ("float", false) => "float",
+        ("bool", false) => "bool",
+        _ => "Variant"
+    };
+
     public string ConversionExpression(string sourceExpression)
     {
         return (PrimitiveName, IsNullable) switch
         {
-            ("string", false) => $"_to_string({sourceExpression})",
-            ("string", true) => $"_to_nullable_string({sourceExpression})",
-            ("int", false) => $"_to_int({sourceExpression})",
-            ("int", true) => $"_to_nullable_int({sourceExpression})",
-            ("float", false) => $"_to_float({sourceExpression})",
-            ("float", true) => $"_to_nullable_float({sourceExpression})",
-            ("bool", false) => $"_to_bool({sourceExpression})",
-            ("bool", true) => $"_to_nullable_bool({sourceExpression})",
-            _ => $"_to_string({sourceExpression})"
+            ("string", false) => $"dto_to_string({sourceExpression})",
+            ("string", true) => $"dto_to_nullable_string({sourceExpression})",
+            ("int", false) => $"dto_to_int({sourceExpression})",
+            ("int", true) => $"dto_to_nullable_int({sourceExpression})",
+            ("float", false) => $"dto_to_float({sourceExpression})",
+            ("float", true) => $"dto_to_nullable_float({sourceExpression})",
+            ("bool", false) => $"dto_to_bool({sourceExpression})",
+            ("bool", true) => $"dto_to_nullable_bool({sourceExpression})",
+            _ => $"dto_to_string({sourceExpression})"
         };
     }
 }
@@ -352,6 +388,7 @@ internal sealed record PrimitiveTypeDescriptor(string PrimitiveName, bool IsNull
 internal sealed record ObjectTypeDescriptor(string TypeName, bool IsNullable) : TypeDescriptor(IsNullable)
 {
     public override string DefaultValueLiteral => "null";
+    public override string GdTypeName => TypeName;
 
     public string ParserFunctionName => $"parse_{TypeName.ToSnakeCase()}";
 }
@@ -359,6 +396,7 @@ internal sealed record ObjectTypeDescriptor(string TypeName, bool IsNullable) : 
 internal sealed record ListTypeDescriptor(TypeDescriptor ElementType, bool IsNullable) : TypeDescriptor(IsNullable)
 {
     public override string DefaultValueLiteral => IsNullable ? "null" : "[]";
+    public override string GdTypeName => IsNullable ? "Variant" : $"Array[{ElementType.GdTypeName}]";
 }
 
 internal static class TypeDescriptorFactory

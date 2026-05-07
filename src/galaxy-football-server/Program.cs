@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Events;
 using GalaxyFootball.Infrastructure.Database;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
 
@@ -23,6 +24,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog();
 
 builder.Configuration.AddEnvironmentVariables();
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 builder.Services.AddControllers();
 // Register external controllers from Cloudflare.Library
@@ -124,10 +132,16 @@ app.UseAuthorization();
 // Use CORS policy for testing with Admin pages of localhost dev machine
 app.UseCors("AllowLocalhost");
 
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+app.UseForwardedHeaders();
 
-// use localhost in the browser
-app.Urls.Add($"http://0.0.0.0:{port}");
+var configuredUrls = builder.Configuration["urls"];
+
+if (string.IsNullOrWhiteSpace(configuredUrls))
+{
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+    app.Urls.Add($"http://0.0.0.0:{port}");
+    Log.Information("Using HTTP on port {Port}. Configure ASPNETCORE_URLS and Kestrel certificates when local Docker HTTPS is needed.", port);
+}
 
 app.UseHttpsRedirection();
 

@@ -27,3 +27,6 @@ appsettings.Development.json
 
 # Publish output
 publish/
+
+# Local HTTPS development artifacts
+certs/
