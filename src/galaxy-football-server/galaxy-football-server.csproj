@@ -43,4 +43,14 @@
     <ProjectReference Include="..\application\application.csproj" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <GodotDtoGeneratorProject>$(MSBuildProjectDirectory)\..\godot-dto-codegen\godot-dto-codegen.csproj</GodotDtoGeneratorProject>
+    <GodotDtoInputDirectory>$(MSBuildProjectDirectory)\DataTransferObjects</GodotDtoInputDirectory>
+    <GodotDtoOutputFile>$(MSBuildProjectDirectory)\..\..\artifacts\godot\GalaxyFootballDtos.gd</GodotDtoOutputFile>
+  </PropertyGroup>
+
+  <Target Name="GenerateGodotDtoGdScript" AfterTargets="Build" Condition="'$(DesignTimeBuild)' != 'true' and Exists('$(GodotDtoGeneratorProject)')">
+    <Exec Command="dotnet run --project &quot;$(GodotDtoGeneratorProject)&quot; --no-launch-profile --configuration &quot;$(Configuration)&quot; -- --input &quot;$(GodotDtoInputDirectory)&quot; --output &quot;$(GodotDtoOutputFile)&quot;" />
+  </Target>
+
 </Project>
