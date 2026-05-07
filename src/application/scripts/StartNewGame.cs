@@ -98,7 +98,8 @@ namespace GalaxyFootball.Application.Scripts
                             m_logger.LogWarning("Player with empty ID found for user {UserId}. ", user.Id);
                             throw new Exception("Player with empty ID found. Cannot start a new game without valid players.");
                         }
-                        create_club_and_team(player.PlayerId, league.Id, competition_indexfor_team);
+                        var (club, team) = create_club_and_team(player.PlayerId, league.Id, competition_indexfor_team);
+                        link_player_to_club_team(player.PlayerId, club.Id, team.Id);
                         players_assigned_to_club++;
                     }
                     else
@@ -106,7 +107,8 @@ namespace GalaxyFootball.Application.Scripts
                         // create an autocoached team for remaining teams without players
                         var coach  = AutoCoachFactory.CreateAutoCoach();
                         m_db.AutoCoaches.Add(coach);
-                        create_club_and_team(coach.Id, league.Id, competition_indexfor_team);
+                        var (club, team) = create_club_and_team(coach.Id, league.Id, competition_indexfor_team);
+                        link_autocoach_to_club_team(coach.Id, club.Id, team.Id);
                     }
                 }
                 
@@ -118,7 +120,7 @@ namespace GalaxyFootball.Application.Scripts
             await RunScript<StartNewSeason>();
         }
 
-        private void create_club_and_team(Guid player_coach_Id, Guid leagueId, int team_index)
+        private (Club, Team) create_club_and_team(Guid playerOrCoachId, Guid leagueId, int team_index)
         {
             var club   = ClubFactory.CreateClub(); 
             while( m_db.Clubs.Any(c => c.Name == club.Name) ) // ensure unique club name
@@ -132,9 +134,11 @@ namespace GalaxyFootball.Application.Scripts
 
             create_robots_for_team(team.Id, 16);
 
-            link_player_to_club_team        (player_coach_Id, club.Id, team.Id);
+            link_club_to_team(club.Id, team.Id);
             link_team_to_league             (team.Id, leagueId, team_index);    
             link_results_of_team_to_league  (leagueId, team.Id);
+
+            return (club, team);
         }
 
         private void create_robots_for_team(Guid teamId, int nr_of_robots)
@@ -187,6 +191,44 @@ namespace GalaxyFootball.Application.Scripts
             m_db.PlayerClubTeams.Add(player_club_team);
             m_db.SaveChanges();
         }
+
+        private void link_autocoach_to_club_team(Guid autoCoachId, Guid clubId, Guid teamId)
+        {
+            var existingLinks = m_db.AutoCoachClubTeams.Where(link => link.AutoCoachId == autoCoachId).ToList();
+            if (existingLinks.Count > 0)
+            {
+                m_db.AutoCoachClubTeams.RemoveRange(existingLinks);
+            }
+
+            var autoCoachClubTeam = new AutoCoachClubTeam
+            {
+                AutoCoachId = autoCoachId,
+                ClubId = clubId,
+                TeamId = teamId
+            };
+
+            m_db.AutoCoachClubTeams.Add(autoCoachClubTeam);
+            m_db.SaveChanges();
+        }
+
+        private void link_club_to_team(Guid clubId, Guid teamId)
+        {
+            var existingLinks = m_db.ClubTeams.Where(link => link.TeamId == teamId || link.ClubId == clubId).ToList();
+            if (existingLinks.Count > 0)
+            {
+                m_db.ClubTeams.RemoveRange(existingLinks);
+            }
+
+            var clubTeam = new ClubTeam
+            {
+                ClubId = clubId,
+                TeamId = teamId
+            };
+
+            m_db.ClubTeams.Add(clubTeam);
+            m_db.SaveChanges();
+        }
+
         private void link_team_to_league(Guid teamId, Guid leagueId, int team_index)
         {
             // Create a new TeamCompetition entry to link the team to the league

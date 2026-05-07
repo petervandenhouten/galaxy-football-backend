@@ -1,4 +1,5 @@
 # For ASP.NET Core
+artifacts/
 
 # Build results
 bin/

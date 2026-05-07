@@ -32,9 +32,15 @@ public class LeagueController : ControllerBase
             .AsNoTracking()
             .FirstOrDefaultAsync();
 
+        var teamClubLinks = m_db.ClubTeams.AsNoTracking()
+            .Select(link => new { link.TeamId, link.ClubId })
+            .Concat(m_db.PlayerClubTeams.AsNoTracking().Select(link => new { link.TeamId, link.ClubId }))
+            .Concat(m_db.AutoCoachClubTeams.AsNoTracking().Select(link => new { link.TeamId, link.ClubId }))
+            .Distinct();
+
         var standings = await (
             from result in m_db.LeagueResults.AsNoTracking()
-            join clubTeam in m_db.ClubTeams.AsNoTracking() on result.TeamId equals clubTeam.TeamId into clubTeamJoin
+            join clubTeam in teamClubLinks on result.TeamId equals clubTeam.TeamId into clubTeamJoin
             from clubTeam in clubTeamJoin.DefaultIfEmpty()
             join club in m_db.Clubs.AsNoTracking() on clubTeam.ClubId equals club.Id into clubJoin
             from club in clubJoin.DefaultIfEmpty()
