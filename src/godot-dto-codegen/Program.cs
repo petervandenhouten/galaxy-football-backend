@@ -178,9 +178,9 @@ internal static class GdScriptGenerator
         {
             AppendDtoClass(builder, definition);
             builder.AppendLine();
-            AppendParserFunction(builder, definition);
+            AppendParserFunction(builder, definition, useVariantReturn:true);
             builder.AppendLine();
-            AppendJsonParserFunction(builder, definition);
+            AppendJsonParserFunction(builder, definition, useVariantReturn:true);
             builder.AppendLine();
         }
 
@@ -203,9 +203,10 @@ internal static class GdScriptGenerator
         }
     }
 
-    private static void AppendParserFunction(StringBuilder builder, DtoDefinition definition)
+    private static void AppendParserFunction(StringBuilder builder, DtoDefinition definition, bool useVariantReturn = false)
     {
-        builder.AppendLine($"static func {definition.ParserFunctionName}(data: Variant) -> {definition.Name}:");
+        var returnType = useVariantReturn ? "Variant" : definition.Name;
+        builder.AppendLine($"static func {definition.ParserFunctionName}(data: Variant) -> {returnType}:");
         builder.AppendLine("    if data == null:");
         builder.AppendLine("        return null");
         builder.AppendLine("    if not (data is Dictionary):");
@@ -213,7 +214,7 @@ internal static class GdScriptGenerator
         builder.AppendLine("        return null");
         builder.AppendLine();
         builder.AppendLine("    var source: Dictionary = data");
-        builder.AppendLine($"    var dto := {definition.Name}.new()");
+        builder.AppendLine($"    var dto: {definition.Name} = {definition.Name}.new()");
 
         foreach (var property in definition.Properties)
         {
@@ -223,9 +224,10 @@ internal static class GdScriptGenerator
         builder.AppendLine("    return dto");
     }
 
-    private static void AppendJsonParserFunction(StringBuilder builder, DtoDefinition definition)
+    private static void AppendJsonParserFunction(StringBuilder builder, DtoDefinition definition, bool useVariantReturn = false)
     {
-        builder.AppendLine($"static func {definition.JsonParserFunctionName}(json_text: String) -> {definition.Name}:");
+        var returnType = useVariantReturn ? "Variant" : definition.Name;
+        builder.AppendLine($"static func {definition.JsonParserFunctionName}(json_text: String) -> {returnType}:");
         builder.AppendLine("    var json := JSON.new()");
         builder.AppendLine("    var parse_result = json.parse(json_text)");
         builder.AppendLine("    if parse_result != OK:");
@@ -254,12 +256,12 @@ internal static class GdScriptGenerator
                 break;
             case ListTypeDescriptor listDescriptor:
                 builder.AppendLine($"{indent}{targetExpression} = {listDescriptor.DefaultValueLiteral}");
-                builder.AppendLine($"{indent}var {property.ScriptPropertyName}_values = {sourceExpression}");
+                builder.AppendLine($"{indent}var {property.ScriptPropertyName}_values: Variant = {sourceExpression}");
                 builder.AppendLine($"{indent}if {property.ScriptPropertyName}_values is Array:");
                 builder.AppendLine($"{indent}    for item in {property.ScriptPropertyName}_values:");
                 if (listDescriptor.ElementType is ObjectTypeDescriptor elementObject)
                 {
-                    builder.AppendLine($"{indent}        var parsed_item := {elementObject.ParserFunctionName}(item)");
+                    builder.AppendLine($"{indent}        var parsed_item: Variant = {elementObject.ParserFunctionName}(item)");
                     builder.AppendLine($"{indent}        if parsed_item != null:");
                     builder.AppendLine($"{indent}            {targetExpression}.append(parsed_item)");
                     builder.AppendLine($"{indent}        else:");

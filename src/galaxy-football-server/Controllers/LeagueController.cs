@@ -74,7 +74,6 @@ public class LeagueController : ControllerBase
             "1",
             DateTime.UtcNow,
             new LeagueReferenceDto(league.Id, league.Level, league.Number),
-            new SeasonInfoDto(game?.Year + 2049, game?.Day),
             standings));
     }
 

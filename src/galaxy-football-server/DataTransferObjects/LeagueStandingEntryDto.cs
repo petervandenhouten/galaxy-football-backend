@@ -4,12 +4,11 @@ namespace GalaxyFootball.Server.DataTransferObjects
         string ApiVersion,
         DateTime GeneratedAt,
         LeagueReferenceDto League,
-        SeasonInfoDto Season,
         IReadOnlyList<LeagueStandingEntryDto> Standings);
 
     public sealed record LeagueReferenceDto(Guid Id, int Level, int Number);
 
-    public sealed record SeasonInfoDto(int? Year, int? Day);
+    // Removed SeasonInfoDto (year and day now come from another endpoint)
 
     public sealed record LeagueStandingEntryDto(
         int Rank,
