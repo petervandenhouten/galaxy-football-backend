@@ -180,7 +180,7 @@ namespace GalaxyFootball.Application.Scripts
             foreach(var league in leagues)
             {
                 var team_entries = m_db.TeamCompetitions.Where( t => t.CompetitionId == league.Id).ToList();
-
+                int ranking = 1; // default ranking for all teams at the start of the season, will be updated after each matchday
                 foreach(var team_entry in team_entries)
                 {
                     var league_result = new LeagueResult
@@ -188,6 +188,7 @@ namespace GalaxyFootball.Application.Scripts
                         Id = Guid.NewGuid(),
                         TeamId = team_entry.TeamId,
                         CompetitionId = league.Id,
+                        Ranking = ranking++
                         // All attributes are reset by constructor
                     };
                     m_db.LeagueResults.Add(league_result);
